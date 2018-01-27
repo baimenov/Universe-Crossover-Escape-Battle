@@ -1,0 +1,4 @@
+startX	  : 15 , 73 , 139
+startY	  : 322, 322, 322
+frameWidth: 57 , 62 , 77
+framHeight: 128, 128, 128
