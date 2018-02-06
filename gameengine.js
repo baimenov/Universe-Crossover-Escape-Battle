@@ -37,6 +37,7 @@ function GameEngine() {
 
     this.moveRight = null;
     this.crouch = null;
+    
 }
 
 GameEngine.prototype.init = function (ctx) {
@@ -46,10 +47,20 @@ GameEngine.prototype.init = function (ctx) {
     this.timer = new Timer();
     this.startInput();
 
+    //Scorpion's status fields.
     this.moveRight = null;
     this.crouch = null;
     this.moveLeft = null;
     this.punch = null;
+    this.punch2 = null;
+    this.punch3 = null;
+
+    this.kick = null;
+    this.kick2 = null;
+
+    this.block = null;
+
+    this.jump = null;
 
     //Just a fun easter egg field
     this.ultraSpeed = null;
@@ -87,8 +98,25 @@ GameEngine.prototype.startInput = function() {
                 that.ultraSpeed = true;
             }
         } else if (e.keyCode === 103) {
-            that.punch = true;
-        } 
+            if (that.punch2) {
+                that.punch3 = true;
+            } else if (that.punch) {
+                that.punch2 = true;
+            } else if (!that.punch2 && !that.punch3 && !that.kick && !that.kick2){
+                console.log("thatkick is : " + that.kick);
+                that.punch = true;
+            }
+        } else if (e.keyCode === 105) {
+            if (that.kick) {
+                that.kick2 = true;
+            }else if (!that.punch && !that.punch2 && !that.punch3 && !that.kick2) {
+                that.kick = true;
+            }
+        } else if (e.keyCode === 96) {
+            that.block = true;
+        } else if (e.keyCode === 38) {
+            that.jump = true;
+        }
         //Gokku's (Unicorn's)
         if (String.fromCharCode(e.which) === ' ') that.space = true;
         if (String.fromCharCode(e.which) === 'K') that.kick = true;
@@ -105,6 +133,8 @@ GameEngine.prototype.startInput = function() {
             that.moveLeft = null;
         } else if (e.keyCode === 40) {
             that.crouch = null;
+        } else if (e.keyCode === 96) {
+            that.block = null;
         }
         //Gokku's (unicorn's)
         if (String.fromCharCode(e.which) === 'A') that.left = false;
@@ -154,7 +184,7 @@ GameEngine.prototype.loop = function () {
 
     //++++++++Gokku's (Unicorn's)
     this.space = null;
-    this.kick = null;
+    //this.kick = null;
     this.left = null;
     this.right = null;
     this.combo = null;
