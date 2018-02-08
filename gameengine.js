@@ -102,20 +102,24 @@ GameEngine.prototype.startInput = function() {
                 that.punch3 = true;
             } else if (that.punch) {
                 that.punch2 = true;
-            } else if (!that.punch2 && !that.punch3 && !that.kick && !that.kick2){
-                console.log("thatkick is : " + that.kick);
+            } else if (!that.punch2 && !that.punch3 && !that.kick && !that.kick2
+                && !that.jump){
                 that.punch = true;
             }
         } else if (e.keyCode === 105) {
             if (that.kick) {
                 that.kick2 = true;
-            }else if (!that.punch && !that.punch2 && !that.punch3 && !that.kick2) {
+            }else if (!that.punch && !that.punch2 && !that.punch3 && !that.kick2
+                && !that.jump) {
                 that.kick = true;
             }
         } else if (e.keyCode === 96) {
             that.block = true;
         } else if (e.keyCode === 38) {
-            that.jump = true;
+            if (!that.punch && !that.punch2 && !that.punch3 && !that.kick
+                && !that.kick2) {
+                that.jump = true;
+            }
         }
         //Gokku's (Unicorn's)
         if (String.fromCharCode(e.which) === ' ') that.space = true;
