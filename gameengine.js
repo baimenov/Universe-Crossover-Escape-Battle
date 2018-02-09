@@ -62,6 +62,10 @@ GameEngine.prototype.init = function (ctx) {
 
     this.jump = null;
 
+    this.jumpKick = null;
+
+    this.uppercut = null;
+
     //Just a fun easter egg field
     this.ultraSpeed = null;
     console.log('game initialized');
@@ -103,8 +107,10 @@ GameEngine.prototype.startInput = function() {
             } else if (that.punch) {
                 that.punch2 = true;
             } else if (!that.punch2 && !that.punch3 && !that.kick && !that.kick2
-                && !that.jump){
+                && !that.jump && !that.crouch){
                 that.punch = true;
+            } else if (that.crouch) {
+                that.uppercut = true;
             }
         } else if (e.keyCode === 105) {
             if (that.kick) {
@@ -112,6 +118,8 @@ GameEngine.prototype.startInput = function() {
             }else if (!that.punch && !that.punch2 && !that.punch3 && !that.kick2
                 && !that.jump) {
                 that.kick = true;
+            } else if (that.jump) {
+                that.jumpKick = true;
             }
         } else if (e.keyCode === 96) {
             that.block = true;

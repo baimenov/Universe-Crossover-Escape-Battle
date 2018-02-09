@@ -61,10 +61,20 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
 	    	frame = lastFrame;
 	    }
 
+	    
+
 	    var index = frame % this.frames;
+
+	    var actualY = this.readyFrames[0].startY;
+	    var currY = this.readyFrames[index].startY;
+	    var actualX = this.readyFrames[0].frameWidth;
+	    var currX = this.readyFrames[index].frameWidth;
+
 	    var vindex = 0;
+
+	   
 	    var locX = x;
-	    var locY = y;
+	    var locY = currY - actualY === 0 ? y : y - (actualY - currY) * 2;
 	    var offset = vindex === 0 ? this.startX : 0;
 
 	    var sx = this.reverse ? this.spriteSheet.width - this.readyFrames[index].startX -
@@ -75,7 +85,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
 	    if (this.reverse) {
 	    	
 	    	var xDiff = this.readyFrames[index].frameWidth - this.actualWidth;
-	    	locX = xDiff <= 0 ? x : x - (xDiff * scaleBy);
+	    	locX = xDiff === 0 ? x : x - (xDiff * scaleBy);
 	    }
 
 	    
