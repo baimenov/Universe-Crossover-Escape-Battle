@@ -166,14 +166,18 @@ Scorpion.prototype = new Entity();
 Scorpion.prototype.constructor = Scorpion;
 
 //Updates scorpion's state (frame).
+/*Current bugs (features) :
+1) If you press crouch and punch while jumping, then
+scorpion will uppercut when lands.
+*/
 Scorpion.prototype.update = function() {
 	if (!this.game.crouch) {
 		this.crouchAnimation.elapsedTime = 0;
 		this.crouchLeftAnimation.elapsedTime = 0;
-		this.uppercutRightAnimation.elapsedTime = 0;
-		this.uppercutLeftAnimation.elapsedTime = 0;
-		this.uppercutting = false;
-		this.game.uppercut = null;
+		//this.uppercutRightAnimation.elapsedTime = 0;
+		//this.uppercutLeftAnimation.elapsedTime = 0;
+		//this.uppercutting = false;
+		//this.game.uppercut = null;
 	}
 	if (!this.game.block) {
 		this.blockLeftAnimation.elapsedTime = 0;
@@ -232,18 +236,15 @@ Scorpion.prototype.update = function() {
 		} else {
 			this.crouching = false;
 		}
-	} else if (this.game.crouch) {
+	} else if (this.game.uppercut) {
+		this.uppercutting = true;
+	}else if (this.game.crouch) {
 		this.crouching = true;
 		this.idling = false;
 		this.movingRight = false;
 		this.movingLeft = false;
 		this.punching = false;
 		//this.blocking = false;
-		if (this.game.uppercut) {
-			this.uppercutting = true;
-		} else {
-			this.uppercutting = false;
-		}
 		if (this.game.block) {
 			this.blocking = true;
 		} else {
@@ -433,6 +434,22 @@ Scorpion.prototype.update = function() {
 			}
 			var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
 			this.y = 420 - height;
+	} else if (this.uppercutting) {
+		if (this.facing === "R") {
+			this.currentAnimation = this.uppercutRightAnimation;
+			if (this.currentAnimation.isDone()) {
+				this.uppercutRightAnimation.elapsedTime = 0;
+				this.uppercutting = false;
+				this.game.uppercut = null;
+			}
+		} else {
+			this.currentAnimation = this.uppercutLeftAnimation;
+			if (this.currentAnimation.isDone()) {
+				this.uppercutLeftAnimation.elapsedTime = 0;
+				this.uppercutting = false;
+				this.game.uppercut = null;
+			}
+		}
 	} else if (this.movingRight) {
 		this.currentAnimation = this.moveAnimation;
 
@@ -449,24 +466,10 @@ Scorpion.prototype.update = function() {
 		}
 	} else  if (this.crouching === true) {
 		if (this.facing === "R") {
-			if (this.uppercutting) {
-				this.currentAnimation = this.uppercutRightAnimation;
-				if (this.currentAnimation.isDone()) {
-					this.uppercutRightAnimation.elapsedTime = 0;
-					this.uppercutting = false;
-					this.game.uppercut = null;
-				}
-			} else {
-				this.currentAnimation = this.crouchAnimation;
-			}
+			this.currentAnimation = this.crouchAnimation;
 		} else {
 			if (this.uppercutting) {
-				this.currentAnimation = this.uppercutLeftAnimation;
-				if (this.currentAnimation.isDone()) {
-					this.uppercutLeftAnimation.elapsedTime = 0;
-					this.uppercutting = false;
-					this.game.uppercut = null;
-				}
+				
 			} else {
 				this.currentAnimation = this.crouchLeftAnimation;
 			}
