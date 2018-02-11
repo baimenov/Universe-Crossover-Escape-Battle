@@ -19,6 +19,7 @@ function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDu
     this.readyFrames= readyFrames;
     //Scorpion's actual width. 
     this.actualWidth = 58;
+    this.actualHeight = 128;
 }
 
 Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
@@ -31,7 +32,7 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
     if (!this.readyFrames) {
 	    var frame = this.currentFrame();
 	    var lastFrame = this.frames - 1;
-	    if (this.saveLast) {
+	    if (this.saveLast && this.isDone()) {
 	    	frame = lastFrame;
 	    }
 
@@ -70,11 +71,15 @@ Animation.prototype.drawFrame = function (tick, ctx, x, y, scaleBy) {
 	    var actualX = this.readyFrames[0].frameWidth;
 	    var currX = this.readyFrames[index].frameWidth;
 
+	    var heightDiff = this.actualHeight - this.readyFrames[index].frameHeight;
+	    
+
 	    var vindex = 0;
 
 	   
 	    var locX = x;
-	    var locY = currY - actualY === 0 ? y : y - (actualY - currY) * 2;
+	    var locY = y + (heightDiff * scaleBy);
+
 	    var offset = vindex === 0 ? this.startX : 0;
 
 	    var sx = this.reverse ? this.spriteSheet.width - this.readyFrames[index].startX -
@@ -111,6 +116,71 @@ Animation.prototype.revesrse = function() {
 
 }
 
+Animation.prototype.getFrameWidth = function() {
+	var frame = this.currentFrame();
+	var lastFrame = this.frames - 1;
+	if (this.saveLast && this.isDone()) {
+	    frame = lastFrame;
+	}
+	var index = frame % this.frames;
+	if (!this.readyFrames) {
+		//console.log("current boxWidth is: " + this.frameWidth);
+		return this.frameWidth;
+	} else {
+		//console.log("current boxWidth is: " + this.readyFrames[index].frameWidth);
+		return this.readyFrames[index].frameWidth;
+	}
+}
+
+Animation.prototype.getFrameHeight = function() {
+	var frame = this.currentFrame();
+	var lastFrame = this.frames - 1;
+	if (this.saveLast && this.isDone()) {
+	    frame = lastFrame;
+	}
+	var index = frame % this.frames;
+	if (!this.readyFrames) {
+		//console.log("current boxWidth is: " + this.frameHeight);
+		return this.frameHeight;
+	} else {
+		//console.log("current boxWidth is: " + this.readyFrames[index].frameHeight);
+		return this.readyFrames[index].frameHeight;
+	}
+}
+
+
+Animation.prototype.getX = function(x, scaleBy) {
+	var frame = this.currentFrame();
+	var lastFrame = this.frames - 1;
+	if (this.saveLast && this.isDone()) {
+	    frame = lastFrame;
+	}
+	var index = frame % this.frames;
+	if (this.reverse && this.readyFrames) {
+		var xDiff = this.readyFrames[index].frameWidth - this.actualWidth;
+	    locX = xDiff === 0 ? x : x - (xDiff * scaleBy);
+	    return locX;
+	} else {
+		return x;
+	}
+}
+
+Animation.prototype.getY = function(y, scaleBy) {
+	if (this.readyFrames) {
+		var frame = this.currentFrame();
+		var lastFrame = this.frames - 1;
+		if (this.saveLast && this.isDone()) {
+	    	frame = lastFrame;
+		}
+		var index = frame % this.frames;
+		var heightDiff = this.actualHeight - this.readyFrames[index].frameHeight;
+		var locY = y + (heightDiff * scaleBy);
+		return locY;
+	} else {
+		return y;
+	}
+}
+
 function Background(game, spritesheet) {
 	this.game = game;
 	this.spritesheet = spritesheet;
@@ -140,6 +210,20 @@ function Frame(startX, startY, frameWidth, frameHeight) {
 	this.frameHeight = frameHeight;
 }
 
+function Box(x, y, width, height) {
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+}
+
+Box.prototype.collide = function(other) {
+	return (this.x < other.x + other.width
+		&& this.x + this.width > other.x
+		&& this.y < other.y + other.height
+		&& this.y + this.height > other.y);
+}
+
 AM.queueDownload("./img/Scorpion.png");
 AM.queueDownload("./img/ScorpionReverse.png");
 AM.queueDownload("./img/CourtyardBackground.jpg");
@@ -155,14 +239,18 @@ AM.downloadAll(function () {
 	var bg = new Background(gameEngine, AM.getAsset("./img/CourtyardBackground.jpg"));
 	var gokku = new Gokku(gameEngine);
 	var ryu = new Ryu(gameEngine);
-	var scorpion = new Scorpion(gameEngine);
+	var scorpion = new Scorpion(gameEngine, 50, 420);
+	var scorpionBot = new Scorpion(gameEngine, 300, 420);
+	scorpionBot.isBot = true;
 	
 
 	gameEngine.addEntity(bg);
 	gameEngine.addEntity(scorpion);
+	gameEngine.addEntity(scorpionBot);
 	//gameEngine.addEntity(gokku);
 	//gameEngine.addEntity(ryu);
 
 	gameEngine.init(ctx);
 	gameEngine.start();
+
 })

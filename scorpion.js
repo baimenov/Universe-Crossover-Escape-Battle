@@ -8,14 +8,16 @@ Jump is buggy right now. Fix is coming thou.
 /*
 	For reverse: startX = OverallSpriteWidth - regularStartX - (frameWidth * frames).
 */
-function Scorpion(game) {
+function Scorpion(game, x, y) {
+
+	this.name = "Scorpion";
 
 	/*
 	This are the ready frames for some animations. Some animations have different frame width
 	for each frame, so it was easier to use the array of frames for each animation.
 	*/
-	this.crouchFrames = [new Frame(984, 23, 57.5, 128), new Frame(1041.5, 23, 57.5, 128),
-							new Frame(1127, 23, 57.5, 128)];
+	this.crouchFrames = [new Frame(988, 36, 50, 115), new Frame(1044, 67, 51, 84),
+							new Frame(1129, 85, 51, 66)];
 	this.punchFrames = [new Frame(15, 322, 57, 128), new Frame(73, 322, 62, 128),
 							 new Frame(139, 322, 77, 128), new Frame(139, 322, 77, 128)];
 	this.punchFrames2 = [new Frame(243, 322, 57, 128), new Frame(302, 322, 60, 128),
@@ -46,12 +48,14 @@ function Scorpion(game) {
 	this.uppercutFrames = [new Frame(14, 907, 58, 128), new Frame(72, 907, 58, 128),
 							new Frame(131, 907, 76, 128), new Frame(212, 882, 52, 153),
 							new Frame(267, 892, 46, 143), new Frame(267, 892, 46, 143),
-							new Frame(267, 892, 46, 143)];
+							new Frame(267, 892, 46, 143), new Frame(267, 892, 46, 143)];
 
 
 
 	//Actual width of Scorpion?
 	this.actualWidth = 58;
+
+	this.actualHeight = 128;
 	
 	this.idleAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		88, 23, 58, 128, 0.10, 7, true, false, false, null);
@@ -115,10 +119,10 @@ function Scorpion(game) {
 		548, 23, 58, 128, 0.07, 1, false, true, true, null);
 
 	this.jumpRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
-		774, 182, 49, 128, 0.1, 8, false, false, false, null);
+		823, 244, 49, 64, 0.1, 7, false, false, false, null);
 
 	this.jumpLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
-		653, 182, 49, 128, 0.1, 8, false, true, false, null);
+		653, 244, 49, 64, 0.1, 7, false, true, false, null);
 
 	this.jumpKickRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		1051, 908, 53, 108, 0.1, this.jumpKickFrames.length, false, false, true, this.jumpKickFrames);
@@ -157,9 +161,18 @@ function Scorpion(game) {
 
 	this.jumpKicking = false;
 
-	this.uppercutting = false;;
+	this.uppercutting = false;
 
-	Entity.call(this, game, 50, 420);
+	this.isBot = false;
+
+	this.boxWidth = 58;
+	this.boxHeight = 128;
+
+	this.scaleBy = 2;
+
+	this.currentBox = (50, 420, 58 * this.scaleBy, 128 * this.scaleBy);
+
+	Entity.call(this, game, x, y);
 }
 
 Scorpion.prototype = new Entity();
@@ -171,321 +184,354 @@ Scorpion.prototype.constructor = Scorpion;
 scorpion will uppercut when lands.
 */
 Scorpion.prototype.update = function() {
-	if (!this.game.crouch) {
-		this.crouchAnimation.elapsedTime = 0;
-		this.crouchLeftAnimation.elapsedTime = 0;
-		//this.uppercutRightAnimation.elapsedTime = 0;
-		//this.uppercutLeftAnimation.elapsedTime = 0;
-		//this.uppercutting = false;
-		//this.game.uppercut = null;
-	}
-	if (!this.game.block) {
-		this.blockLeftAnimation.elapsedTime = 0;
-		this.blockRightAnimation.elapsedTime = 0;
-	}
-	if (this.game.jump) {
-		this.jumping = true;
-		if (this.game.jumpKick) {
-			this.jumpKicking = true;
-		}
-	} else if (this.game.punch) {
-		console.log("you pressed punch key");
-		this.punching = true;
-		this.movingLeft = false;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.blocking = false;
-	} else if (this.game.punch2) {
-		this.punching2 = true;
-		this.movingLeft = false;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.blocking = false;
-	} else if (this.game.punch3) {
-		this.punching3 = true;
-		this.movingLeft = false;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.blocking = false;
-	} else if (this.game.kick) {
-		this.kicking = true;
-		this.movingLeft = false;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.blocking = false;
-	} else if (this.game.kick2) {
-		this.kicking2 = true;
-		this.movingLeft = false;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.blocking = false;
-	} else if (this.game.block) {
 
-		this.blocking = true;
-		this.movingLeft = false;
-		this.idling = false;
-		//this.crouching = false;
-		this.movingRight = false;
-		if (this.game.crouch) {
-			this.crouching = true;
-		} else {
+	if (!this.isBot) {
+
+
+		if (!this.game.crouch) {
+			this.crouchAnimation.elapsedTime = 0;
+			this.crouchLeftAnimation.elapsedTime = 0;
+			
+		}
+		if (!this.game.block) {
+			this.blockLeftAnimation.elapsedTime = 0;
+			this.blockRightAnimation.elapsedTime = 0;
+		}
+		if (this.game.jump) {
+			this.jumping = true;
+			if (this.game.jumpKick) {
+				this.jumpKicking = true;
+			}
+		} else if (this.game.punch) {
+			//console.log("you pressed punch key");
+			this.punching = true;
+			this.movingLeft = false;
+			this.idling = false;
 			this.crouching = false;
-		}
-	} else if (this.game.uppercut) {
-		this.uppercutting = true;
-	}else if (this.game.crouch) {
-		this.crouching = true;
-		this.idling = false;
-		this.movingRight = false;
-		this.movingLeft = false;
-		this.punching = false;
-		//this.blocking = false;
-		if (this.game.block) {
-			this.blocking = true;
-		} else {
+			this.movingRight = false;
 			this.blocking = false;
-		}
+		} else if (this.game.punch2) {
+			this.punching2 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.punch3) {
+			this.punching3 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.kick) {
+			this.kicking = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.kick2) {
+			this.kicking2 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.block) {
 
-	} else if (this.game.moveRight) {
-		this.movingRight = true;
-		this.idling = false;
-		this.crouching = false;
-		this.movingLeft = false;
-		this.punching = false;
-		this.blocking = false;
-		this.facing = "R";
-	} else if (this.game.moveLeft) {
-		this.movingLeft = true;
-		this.idling = false;
-		this.crouching = false;
-		this.movingRight = false;
-		this.punching = false;
-		this.blocking = false;
-		this.facing = "L";
-	//} else if (this.game.jump) {
-	//	this.jumping = true;
-	//	this.idling = false;
-	//	this.crouching = false;
-		//this.movingRight = false;
-	//	this.punching = false;
-	//	this.blocking = false;
-	}else  if (!this.game.moveRight && !this.game.crouch && !this.game.moveLeft
-				&& !this.game.punch) {
-		this.idling = true;
-		this.movingRight = false;
-		this.crouching = false;
-		this.movingLeft = false;
-		this.punching = false;
-		this.blocking = false;
-	} 
-
-
-
-	//FUN EASTER EGG STUFF, BETTER TO REMOVE in prototype!
-	//ULTRA SPEED is activated when "U" key is pressed
-	//and deactivated when "U" is pressed again
-	if (this.game.ultraSpeed) {
-		this.speed += 0.1;
-	} else {
-		this.speed = 5;
-	}
-
-	 if (this.blocking) {
-		if (this.facing === "R") {
-			if (this.crouching) {
-				this.currentAnimation = this.blockCrouchRightAnimation;
+			this.blocking = true;
+			this.movingLeft = false;
+			this.idling = false;
+			//this.crouching = false;
+			this.movingRight = false;
+			if (this.game.crouch) {
+				this.crouching = true;
 			} else {
-				this.currentAnimation = this.blockRightAnimation;
+				this.crouching = false;
 			}
+		} else if (this.game.uppercut) {
+			this.uppercutting = true;
+		}else if (this.game.crouch) {
+			this.crouching = true;
+			this.idling = false;
+			this.movingRight = false;
+			this.movingLeft = false;
+			this.punching = false;
+			//this.blocking = false;
+			if (this.game.block) {
+				this.blocking = true;
+			} else {
+				this.blocking = false;
+			}
+
+		} else if (this.game.moveRight) {
+			this.movingRight = true;
+			this.idling = false;
+			this.crouching = false;
+			this.movingLeft = false;
+			this.punching = false;
+			this.blocking = false;
+			this.facing = "R";
+		} else if (this.game.moveLeft) {
+			this.movingLeft = true;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.punching = false;
+			this.blocking = false;
+			this.facing = "L";
+		//} else if (this.game.jump) {
+		//	this.jumping = true;
+		//	this.idling = false;
+		//	this.crouching = false;
+			//this.movingRight = false;
+		//	this.punching = false;
+		//	this.blocking = false;
+		}else  if (!this.game.moveRight && !this.game.crouch && !this.game.moveLeft
+					&& !this.game.punch) {
+			this.idling = true;
+			this.movingRight = false;
+			this.crouching = false;
+			this.movingLeft = false;
+			this.punching = false;
+			this.blocking = false;
+		} 
+
+
+
+		//FUN EASTER EGG STUFF, BETTER TO REMOVE in prototype!
+		//ULTRA SPEED is activated when "U" key is pressed
+		//and deactivated when "U" is pressed again
+		if (this.game.ultraSpeed) {
+			this.speed += 0.1;
 		} else {
-			if (this.crouching) {
-				this.currentAnimation = this.blockCrouchLeftAnimation;
+			this.speed = 5;
+		}
+
+		 if (this.blocking) {
+			if (this.facing === "R") {
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchRightAnimation;
+				} else {
+					this.currentAnimation = this.blockRightAnimation;
+				}
 			} else {
-				this.currentAnimation = this.blockLeftAnimation;
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchLeftAnimation;
+				} else {
+					this.currentAnimation = this.blockLeftAnimation;
+				}
 			}
-		}
-	} else if (this.punching) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.punchRightAnimation;
-			if (this.punchRightAnimation.isDone()) {
-				this.punchRightAnimation.elapsedTime = 0;
-				this.punching = false;
-				this.game.punch = null;
+		} else if (this.punching) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRightAnimation;
+				if (this.punchRightAnimation.isDone()) {
+					this.punchRightAnimation.elapsedTime = 0;
+					this.punching = false;
+					this.game.punch = null;
+				}
+			} else if (this.facing === "L") {
+				if (this.punchLeftAnimation.isDone()) {
+					this.punchLeftAnimation.elapsedTime = 0;
+					this.punching = false;
+					this.game.punch = null;
+				}
+				this.currentAnimation = this.punchLeftAnimation;
 			}
-		} else if (this.facing === "L") {
-			if (this.punchLeftAnimation.isDone()) {
-				this.punchLeftAnimation.elapsedTime = 0;
-				this.punching = false;
-				this.game.punch = null;
+		} else if (this.punching2) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRight2Animation;
+				if (this.punchRight2Animation.isDone()) {
+					this.punchRight2Animation.elapsedTime = 0;
+					this.punching2 = false;
+					this.game.punch2 = null;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.punchLeft2Animation;
+				if (this.punchLeft2Animation.isDone()) {
+					this.punchLeft2Animation.elapsedTime = 0;
+					this.punching2 = false;
+					this.game.punch2 = null;
+				}
 			}
-			this.currentAnimation = this.punchLeftAnimation;
-		}
-	} else if (this.punching2) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.punchRight2Animation;
-			if (this.punchRight2Animation.isDone()) {
-				this.punchRight2Animation.elapsedTime = 0;
-				this.punching2 = false;
-				this.game.punch2 = null;
+		} else if (this.punching3) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRight3Animation;
+				if (this.punchRight3Animation.isDone()) {
+					this.punchRight3Animation.elapsedTime = 0;
+					this.punching3 = false;
+					this.game.punch3 = null;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.punchLeft3Animation;
+				if (this.punchLeft3Animation.isDone()) {
+					this.punchLeft3Animation.elapsedTime = 0;
+					this.punching3 = false;
+					this.game.punch3 = null;
+				}
 			}
-		} else if (this.facing === "L") {
-			this.currentAnimation = this.punchLeft2Animation;
-			if (this.punchLeft2Animation.isDone()) {
-				this.punchLeft2Animation.elapsedTime = 0;
-				this.punching2 = false;
-				this.game.punch2 = null;
+		} else if (this.kicking) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.kickRightAnimation;
+				if (this.kickRightAnimation.isDone()) {
+					this.kickRightAnimation.elapsedTime = 0;
+					this.kicking = false;
+					this.game.kick = false;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.kickLeftAnimation;
+				if (this.kickLeftAnimation.isDone()) {
+					this.kickLeftAnimation.elapsedTime = 0;
+					this.kicking = false;
+					this.game.kick = false;
+				}
 			}
-		}
-	} else if (this.punching3) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.punchRight3Animation;
-			if (this.punchRight3Animation.isDone()) {
-				this.punchRight3Animation.elapsedTime = 0;
-				this.punching3 = false;
-				this.game.punch3 = null;
+		} else if(this.kicking2) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.kickRight2Animation;
+				if (this.kickRight2Animation.isDone()) {
+					this.kickRight2Animation.elapsedTime = 0;
+					this.kicking2 = false;
+					this.game.kick2 = false;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.kickLeft2Animation;
+				if (this.kickLeft2Animation.isDone()) {
+					this.kickLeft2Animation.elapsedTime = 0;
+					this.kicking2 = false;
+					this.game.kick2 = false;
+				}
 			}
-		} else if (this.facing === "L") {
-			this.currentAnimation = this.punchLeft3Animation;
-			if (this.punchLeft3Animation.isDone()) {
-				this.punchLeft3Animation.elapsedTime = 0;
-				this.punching3 = false;
-				this.game.punch3 = null;
+		} else if (this.jumping) {
+			if (this.facing === "R") {
+				if (this.jumpKicking) {
+					this.currentAnimation.readyFrames = this.jumpKickFrames;
+				} else {
+					this.currentAnimation = this.jumpRightAnimation;
+				}
+				if (this.currentAnimation.isDone()) {
+					this.jumpRightAnimation.readyFrames = null;
+					this.jumpKickRightAnimation.elapsedTime = 0;
+					this.jumpRightAnimation.elapsedTime = 0;
+					this.jumping = false;
+					this.jumpKicking = false;
+					this.game.jumpKick = null;
+					this.game.jump = null;
+				}
+				if (this.movingRight && this.x < 1160) {
+					this.x += this.speed;
+				}
+			} else if (this.facing === "L") {
+				if (this.jumpKicking) {
+					this.currentAnimation.readyFrames = this.jumpKickFrames;
+				} else {
+					this.currentAnimation = this.jumpLeftAnimation;
+				}
+				if (this.currentAnimation.isDone()) {
+					this.jumpLeftAnimation.readyFrames = null;
+					this.jumpLeftAnimation.elapsedTime = 0;
+					this.jumpKickLeftAnimation.elapsedTime = 0;
+					this.jumpKicking = false;
+					this.jumping = false;
+					this.game.jumpKick = null;
+					this.game.jump = null;
+				}
+				if (this.movingLeft && this.x >= 0) {
+					this.x -= this.speed;
+				}
 			}
-		}
-	} else if (this.kicking) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.kickRightAnimation;
-			if (this.kickRightAnimation.isDone()) {
-				this.kickRightAnimation.elapsedTime = 0;
-				this.kicking = false;
-				this.game.kick = false;
-			}
-		} else if (this.facing === "L") {
-			this.currentAnimation = this.kickLeftAnimation;
-			if (this.kickLeftAnimation.isDone()) {
-				this.kickLeftAnimation.elapsedTime = 0;
-				this.kicking = false;
-				this.game.kick = false;
-			}
-		}
-	} else if(this.kicking2) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.kickRight2Animation;
-			if (this.kickRight2Animation.isDone()) {
-				this.kickRight2Animation.elapsedTime = 0;
-				this.kicking2 = false;
-				this.game.kick2 = false;
-			}
-		} else if (this.facing === "L") {
-			this.currentAnimation = this.kickLeft2Animation;
-			if (this.kickLeft2Animation.isDone()) {
-				this.kickLeft2Animation.elapsedTime = 0;
-				this.kicking2 = false;
-				this.game.kick2 = false;
-			}
-		}
-	} else if (this.jumping) {
-		if (this.facing === "R") {
-			if (this.jumpKicking) {
-				this.currentAnimation.readyFrames = this.jumpKickFrames;
+			var jumpDistance = this.currentAnimation.elapsedTime / this.currentAnimation.totalTime;
+				var totalHeight = 360;
+				if (jumpDistance > 0.5) {
+					jumpDistance = 1 - jumpDistance;
+				}
+				var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+				this.y = 420 - height;
+		} else if (this.uppercutting) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.uppercutRightAnimation;
+				if (this.currentAnimation.isDone()) {
+					this.uppercutRightAnimation.elapsedTime = 0;
+					this.uppercutting = false;
+					this.game.uppercut = null;
+				}
 			} else {
-				this.currentAnimation = this.jumpRightAnimation;
+				this.currentAnimation = this.uppercutLeftAnimation;
+				if (this.currentAnimation.isDone()) {
+					this.uppercutLeftAnimation.elapsedTime = 0;
+					this.uppercutting = false;
+					this.game.uppercut = null;
+				}
 			}
-			if (this.currentAnimation.isDone()) {
-				this.jumpRightAnimation.readyFrames = null;
-				this.jumpKickRightAnimation.elapsedTime = 0;
-				this.jumpRightAnimation.elapsedTime = 0;
-				this.jumping = false;
-				this.jumpKicking = false;
-				this.game.jumpKick = null;
-				this.game.jump = null;
-			}
-			if (this.movingRight && this.x < 1160) {
+		} else if (this.movingRight) {
+			this.currentAnimation = this.moveAnimation;
+
+			if (this.x < 1160) {
 				this.x += this.speed;
 			}
-		} else if (this.facing === "L") {
-			if (this.jumpKicking) {
-				this.currentAnimation.readyFrames = this.jumpKickFrames;
-			} else {
-				this.currentAnimation = this.jumpLeftAnimation;
-			}
-			if (this.currentAnimation.isDone()) {
-				this.jumpLeftAnimation.readyFrames = null;
-				this.jumpLeftAnimation.elapsedTime = 0;
-				this.jumpKickLeftAnimation.elapsedTime = 0;
-				this.jumpKicking = false;
-				this.jumping = false;
-				this.game.jumpKick = null;
-				this.game.jump = null;
-			}
-			if (this.movingLeft && this.x >= 0) {
-				this.x -= this.speed;
-			}
-		}
-		var jumpDistance = this.currentAnimation.elapsedTime / this.currentAnimation.totalTime;
-			var totalHeight = 400;
-			if (jumpDistance > 0.5) {
-				jumpDistance = 1 - jumpDistance;
-			}
-			var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
-			this.y = 420 - height;
-	} else if (this.uppercutting) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.uppercutRightAnimation;
-			if (this.currentAnimation.isDone()) {
-				this.uppercutRightAnimation.elapsedTime = 0;
-				this.uppercutting = false;
-				this.game.uppercut = null;
-			}
-		} else {
-			this.currentAnimation = this.uppercutLeftAnimation;
-			if (this.currentAnimation.isDone()) {
-				this.uppercutLeftAnimation.elapsedTime = 0;
-				this.uppercutting = false;
-				this.game.uppercut = null;
-			}
-		}
-	} else if (this.movingRight) {
-		this.currentAnimation = this.moveAnimation;
+			
+			
+		} else if (this.movingLeft) {
+			this.currentAnimation = this.moveLeftAnimation;
 
-		if (this.x < 1160) {
-			this.x += this.speed;
-		}
-		
-		
-	} else if (this.movingLeft) {
-		this.currentAnimation = this.moveLeftAnimation;
-
-		if (this.x >= 0) {
-			this.x += -1 * (this.speed);
-		}
-	} else  if (this.crouching === true) {
-		if (this.facing === "R") {
-			this.currentAnimation = this.crouchAnimation;
-		} else {
-			if (this.uppercutting) {
-				
+			if (this.x >= 0) {
+				this.x += -1 * (this.speed);
+			}
+		} else  if (this.crouching === true) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.crouchAnimation;
 			} else {
-				this.currentAnimation = this.crouchLeftAnimation;
+				if (this.uppercutting) {
+					
+				} else {
+					this.currentAnimation = this.crouchLeftAnimation;
+				}
+			}
+		} else  {
+			if (this.facing === "R") {
+				this.currentAnimation = this.idleAnimation;
+			} else {
+				this.currentAnimation = this.idleLeftAnimation;
 			}
 		}
-	} else  {
-		if (this.facing === "R") {
-			this.currentAnimation = this.idleAnimation;
-		} else {
-			this.currentAnimation = this.idleLeftAnimation;
+		//var heightDiff = this.boxHeight - this.currentAnimation.getFrameHeight();
+		//this.y = heightDiff === 0 ? this.y : this.y + (heightDiff * this.scaleBy);
+		//this.currentAnimation.getFrameWidth();
+		//this.currentAnimation.getFrameHeight();
+		
+		//console.log("my x is: " + this.x);
+		//console.log("myHeight is: " + this.currentAnimation.getFrameHeight());
+		//console.log("myWidth is:  " + this.currentAnimation.getFrameWidth());
+
+	}
+	//console.log("my y is: " + this.currentAnimation.getY(this.y, this.scaleBy) + 
+			//"\n my x is: " + this.x + "\n myHeight is: " + this.currentAnimation.getFrameHeight() * this.scaleBy + 
+		//"\n myWidth is:  " + this.currentAnimation.getFrameWidth() * this.scaleBy);
+		var currentBox = new Box(this.currentAnimation.getX(this.x, this.scaleBy),
+			this.currentAnimation.getY(this.y, this.scaleBy),
+			this.currentAnimation.getFrameWidth() * this.scaleBy,
+			this.currentAnimation.getFrameHeight() * this.scaleBy);
+		this.currentBox = currentBox;
+
+	//Detect collision with other entities
+	for (var i = 0; i < this.game.entities.length; i++) {
+		var ent = this.game.entities[i];
+		if (ent !== this && ent.currentBox && this.collide(ent)) {
+			console.log("They collide!");
 		}
 	}
+
+
 	Entity.prototype.update.call(this);
+}
+
+Scorpion.prototype.collide = function(other) {
+	return this.currentBox.collide(other.currentBox);
 }
 
 //Draws current frame of current animation.
 Scorpion.prototype.draw = function(ctx) {
-	this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y, 2);
+	this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scaleBy);
 	Entity.prototype.draw.call(this);
 }
