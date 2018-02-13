@@ -224,6 +224,24 @@ Box.prototype.collide = function(other) {
 		&& this.y + this.height > other.y);
 }
 
+function HealthBar(hp, game) {
+	this.hp = hp;
+	this.color = "red";
+	this.game = game;
+}
+
+HealthBar.prototype = new Entity();
+HealthBar.prototype.constructor = HealthBar;
+
+HealthBar.prototype.update = function() {
+
+}
+
+HealthBar.prototype.draw = function(ctx, x) {
+	ctx.fillStyle = this.color;
+	ctx.fillRect(x, 20, this.hp * 5, 20);
+}
+
 AM.queueDownload("./img/Scorpion.png");
 AM.queueDownload("./img/ScorpionReverse.png");
 AM.queueDownload("./img/CourtyardBackground.jpg");

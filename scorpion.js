@@ -52,6 +52,7 @@ function Scorpion(game, x, y) {
 
 
 
+
 	//Actual width of Scorpion?
 	this.actualWidth = 58;
 
@@ -136,6 +137,12 @@ function Scorpion(game, x, y) {
 	this.uppercutLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		14, 907, 58, 128, 0.1, this.uppercutFrames.length, false, true, false, this.uppercutFrames);
 
+	this.attackedRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
+		12, 1053, 58, 128, 0.16, 2, false, false, false, null);
+
+	this.attackedLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
+		1691, 1053, 58, 128, 0.16, 2, false, true, false, null);
+
 
 	this.currentAnimation = this.idleAnimation;
 	//Scorpion's movement speed.
@@ -168,9 +175,21 @@ function Scorpion(game, x, y) {
 	this.boxWidth = 58;
 	this.boxHeight = 128;
 
+	this.gettingAttacked = false;
+
 	this.scaleBy = 2;
 
 	this.currentBox = (50, 420, 58 * this.scaleBy, 128 * this.scaleBy);
+
+	this.healthBar = new HealthBar(100, this.game);
+
+	this.attackDamageMap = new Map();
+
+	this.attackDamageMap.set(this.punching, 0.5);
+	this.attackDamageMap.set(this.punching2, 0.3);
+	this.attackDamageMap.set(this.punching3, 0.15);
+	this.attackDamageMap.set(this.kicking, 0.4);
+	this.attackDamageMap.set(this.kicking2, 0.2);
 
 	Entity.call(this, game, x, y);
 }
@@ -184,6 +203,20 @@ Scorpion.prototype.constructor = Scorpion;
 scorpion will uppercut when lands.
 */
 Scorpion.prototype.update = function() {
+
+	if (this.healthBar.hp <= 0) {
+		this.removeFromWorld = true;
+	}
+
+	if (this.gettingAttacked) {
+		this.currentAnimation = this.facing === "L" ? this.attackedLeftAnimation : this.attackedRightAnimation;
+		if (this.currentAnimation.isDone()) {
+			
+			this.currentAnimation.elapsedTime = 0;
+			this.gettingAttacked = false;
+			//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+		}
+	}
 
 	if (!this.isBot) {
 
@@ -504,6 +537,12 @@ Scorpion.prototype.update = function() {
 		//console.log("myHeight is: " + this.currentAnimation.getFrameHeight());
 		//console.log("myWidth is:  " + this.currentAnimation.getFrameWidth());
 
+	} else {
+		if (!this.gettingAttacked) {
+			var next = Math.random();
+			
+				this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+		}
 	}
 	//console.log("my y is: " + this.currentAnimation.getY(this.y, this.scaleBy) + 
 			//"\n my x is: " + this.x + "\n myHeight is: " + this.currentAnimation.getFrameHeight() * this.scaleBy + 
@@ -519,6 +558,24 @@ Scorpion.prototype.update = function() {
 		var ent = this.game.entities[i];
 		if (ent !== this && ent.currentBox && this.collide(ent)) {
 			console.log("They collide!");
+
+			if (this.isAttacking()) {
+				if (this.facing === "R" && this.isToTheLeftOf(ent)) {
+					if (!ent.blocking) {
+						this.attackHandler(ent, 1);
+					} else {
+						this.attackHandler(ent, 0.3);
+					}
+					ent.facing = "L";
+				} else if (this.facing === "L" && !this.isToTheLeftOf(ent)) {
+					if (!ent.blocking) {
+						this.attackHandler(ent, 1);
+					} else {
+						this.attackHandler(ent, 0.3);
+					}
+					ent.facing = "R";
+				}
+			}
 		}
 	}
 
@@ -530,8 +587,61 @@ Scorpion.prototype.collide = function(other) {
 	return this.currentBox.collide(other.currentBox);
 }
 
+Scorpion.prototype.isAttacking = function() {
+	return (this.punching || this.punching2 || this.punching3
+		|| this.kicking || this.kicking2 || this.uppercutting
+		|| this.jumpKicking);
+}
+
+Scorpion.prototype.isToTheLeftOf = function(other) {
+	return (this.x < other.x);
+}
+
+Scorpion.prototype.getAttackType = function() {
+	if (this.punching) {
+		return this.punching;
+	} else if (this.punching2) {
+		return this.punching2;
+	} else if (this.punching3) {
+		return this.punching3;
+	} else if (this.kicking) {
+		return this.kicking;
+	} else if (this.kicking2) {
+		return this.kicking2;
+	} else {
+		return false;
+	}
+}
+
+Scorpion.prototype.attackHandler = function(other, mult) {
+	if (this.currentAnimation === this.punchRightAnimation
+		|| this.currentAnimation === this.punchLeftAnimation) {
+		other.healthBar.hp -= 0.5 * mult;
+	} else if (this.currentAnimation === this.punchRight2Animation
+		|| this.currentAnimation === this.punchLeft2Animation) {
+		other.healthBar.hp -= 0.3 * mult;
+	} else if (this.currentAnimation === this.punchRight3Animation
+		|| this.currentAnimation === this.punchLeft3Animation) {
+		other.healthBar.hp -= 0.15 * mult;		
+	} else if (this.currentAnimation === this.kickRightAnimation
+		|| this.currentAnimation === this.kickLeftAnimation) {
+		other.healthBar.hp -= 0.4 * mult;	
+	} else if (this.currentAnimation === this.kickRight2Animation
+		|| this.currentAnimation === this.kickLeft2Animation) {
+		other.healthBar.hp -= 0.2 * mult;
+	}
+	if (!other.blocking) {
+		other.gettingAttacked = true;
+	}
+}
+
 //Draws current frame of current animation.
 Scorpion.prototype.draw = function(ctx) {
 	this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scaleBy);
+	if (!this.isBot) {
+		this.healthBar.draw(ctx, 20);
+	} else {
+		this.healthBar.draw(ctx, 600);
+	}
 	Entity.prototype.draw.call(this);
 }
