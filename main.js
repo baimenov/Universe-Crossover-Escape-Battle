@@ -248,6 +248,8 @@ AM.queueDownload("./img/CourtyardBackground.jpg");
 AM.queueDownload("./img/GokuSS.png");
 AM.queueDownload("./img/Ryu.png");
 AM.queueDownload("./img/RyuFlipped.png");
+AM.queueDownload("./img/Subzero.png");
+AM.queueDownload("./img/SubzeroReverse.png");
 
 AM.downloadAll(function () {
 	var canvas = document.getElementById("gameWorld");
@@ -260,11 +262,14 @@ AM.downloadAll(function () {
 	var scorpion = new Scorpion(gameEngine, 50, 420);
 	var scorpionBot = new Scorpion(gameEngine, 300, 420);
 	scorpionBot.isBot = true;
+
+	var subzero = new Subzero(gameEngine, 500, 420);
 	
 
 	gameEngine.addEntity(bg);
 	gameEngine.addEntity(scorpion);
 	gameEngine.addEntity(scorpionBot);
+	gameEngine.addEntity(subzero);
 	//gameEngine.addEntity(gokku);
 	//gameEngine.addEntity(ryu);
 

@@ -60,88 +60,92 @@ function Scorpion(game, x, y) {
 	
 	this.idleAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		88, 23, 58, 128, 0.10, 7, true, false, false, null);
-	
 	this.idleLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		1325, 23, 58, 128, 0.10, 7, true,  true, false, null);
 
 	this.moveAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		18, 182, 57.5, 128, 0.10, 8, true,  false,  false, null);
-	
 	this.moveLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		1341, 182, 57.5, 128, 0.10, 8, true,   true, false, null);
 
 	this.crouchAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		984, 23, 57.5, 128, 0.10, 3, false,  false, true, this.crouchFrames);
-	
 	this.crouchLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		984, 23,  57.5, 128, 0.10, 3, false,  true, true, this.crouchFrames);
 	
 
 	this.punchRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		15, 322, 57, 128, 0.1, this.punchFrames.length, false, false, false, this.punchFrames);
-
 	this.punchLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		15, 322, 57, 128, 0.1, this.punchFrames.length, false, true, false, this.punchFrames);
 
+
 	this.punchRight2Animation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		243, 322, 57, 128, 0.1, this.punchFrames2.length, false, false, false, this.punchFrames2);
-
 	this.punchLeft2Animation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		243, 322, 57, 128, 0.1, this.punchFrames2.length, false, true, false, this.punchFrames2);
 
 	this.punchRight3Animation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		478, 322, 58, 128, 0.1, this.punchFrames3.length, false, false, false, this.punchFrames3);
-
 	this.punchLeft3Animation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		478, 322, 58, 128, 0.1, this.punchFrames3.length, false, true, false, this.punchFrames3);
 
 	this.kickRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		14, 603, 58, 128, 0.07, this.kickFrames.length, false, false, false, this.kickFrames);
-
 	this.kickLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		14, 603, 58, 128, 0.07, this.kickFrames.length, false, true, false, this.kickFrames);
 
 	this.kickRight2Animation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		14, 603, 58, 128, 0.07, this.kickFrames2.length, false, false, false, this.kickFrames2);
-
 	this.kickLeft2Animation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		14, 603, 58, 128, 0.07, this.kickFrames2.length, false, true, false, this.kickFrames2);
 
 	this.blockRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		799, 23, 57, 128, 0.1, this.blockFrames.length, false, false, true, this.blockFrames);
-
 	this.blockLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		799, 23, 57, 128, 0.1, this.blockFrames.length, false, true, true, this.blockFrames);
 
 	this.blockCrouchRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		1213, 23, 58, 128, 0.07, 1, false, false, true, null);
-
 	this.blockCrouchLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		548, 23, 58, 128, 0.07, 1, false, true, true, null);
 
 	this.jumpRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		823, 244, 49, 64, 0.1, 7, false, false, false, null);
-
 	this.jumpLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		653, 244, 49, 64, 0.1, 7, false, true, false, null);
 
 	this.jumpKickRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		1051, 908, 53, 108, 0.1, this.jumpKickFrames.length, false, false, true, this.jumpKickFrames);
-
 	this.jumpKickLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		1051, 908, 53, 108, 0.1, this.jumpKickFrames.length, false, true, true, this.jumpKickFrames);
 
 	this.uppercutRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		14, 907, 58, 128, 0.1, this.uppercutFrames.length, false, false, false, this.uppercutFrames);
-
 	this.uppercutLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		14, 907, 58, 128, 0.1, this.uppercutFrames.length, false, true, false, this.uppercutFrames);
 
 	this.attackedRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		12, 1053, 58, 128, 0.16, 2, false, false, false, null);
-
 	this.attackedLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		1691, 1053, 58, 128, 0.16, 2, false, true, false, null);
+
+	this.animationCollection = [this.idleAnimation, this.idleLeftAnimation,
+			this.moveAnimation, this.moveLeftAnimation, this.crouchAnimation,
+			this.crouchLeftAnimation, this.punchRightAnimation, this.punchLeftAnimation,
+			this.punchRight2Animation, this.punchLeft2Animation, this.punchRight3Animation,
+			this.punchLeft3Animation, this.kickRightAnimation, this.kickLeftAnimation,
+			this.kickRight2Animation, this.kickLeft2Animation, this.blockRightAnimation,
+			this.blockLeftAnimation, this.blockCrouchRightAnimation,
+			this.blockCrouchLeftAnimation, this.jumpRightAnimation,
+			this.jumpLeftAnimation, this.jumpKickRightAnimation, this.jumpKickLeftAnimation,
+			this.uppercutRightAnimation, this.uppercutLeftAnimation,
+			this.attackedRightAnimation, this.attackedLeftAnimation];
+
+	for (var i = 0; i < this.animationCollection.length; i++) {
+		this.animationCollection[i].actualWidth = 58;
+		this.animationCollection[i].actualHeight = 128;
+	}
 
 
 	this.currentAnimation = this.idleAnimation;
@@ -539,7 +543,7 @@ Scorpion.prototype.update = function() {
 
 	} else {
 		if (!this.gettingAttacked) {
-			var next = Math.random();
+			//var next = Math.random();
 			
 				this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
 		}
