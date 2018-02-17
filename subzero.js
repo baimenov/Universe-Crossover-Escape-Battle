@@ -10,6 +10,8 @@ function Subzero(game, x, y) {
 	this.img = AM.getAsset("./img/Subzero.png");
 	this.imgr = AM.getAsset("./img/SubzeroReverse.png");
 
+	this.velocity = { x: 200, y: 50 };
+
 
 	this.speed = 5;
 	
@@ -42,10 +44,24 @@ function Subzero(game, x, y) {
 
 	this.gettingAttacked = false;
 
+	this.currentBox = new Box(x, y, this.boxWidth * this.scaleBy, this.boxHeight * this.scaleBy);
+
+	this.healthBar = new HealthBar(100, this.game, 100, 100);
+
+	this.attackDamageMap = new Map();
+
+	this.attackDamageMap.set(this.punching, 0.5);
+	this.attackDamageMap.set(this.punching2, 0.3);
+	this.attackDamageMap.set(this.punching3, 0.15);
+	this.attackDamageMap.set(this.kicking, 0.4);
+	this.attackDamageMap.set(this.kicking2, 0.2);
+
 	this.crouchFrames = [new Frame(1156, 30, 51, 93), new Frame(1212, 54, 51, 69),
 							new Frame(1269, 69, 50, 54)];
 	this.blockFrames = [new Frame(974, 18, 51, 105), new Frame(1031, 18, 45, 105),
 						new Frame(1083, 18, 44, 105)];
+
+	this.crouchBlockFrames = [new Frame(1350, 50, 45, 73)];
 
 	this.punchFrames = [new Frame(17, 262, 52, 103), new Frame(75, 262, 57, 103),
 						new Frame(142, 262, 73, 103), new Frame(142, 262, 73, 103)];
@@ -73,7 +89,22 @@ function Subzero(game, x, y) {
 						new Frame(926, 205, 44, 47), new Frame(977, 202, 38, 51),
 						new Frame(1022, 202, 42, 52), new Frame(1071, 209, 44, 43)];
 
+	this.jumpKickFrames = [new Frame(1056, 776, 47, 67), new Frame(1109, 766, 85, 76),
+							new Frame(1109, 766, 85, 76), new Frame(1109, 766, 85, 76),
+							new Frame(1109, 766, 85, 76), new Frame(1109, 766, 85, 76),
+							new Frame(1109, 766, 85, 76), new Frame(1109, 766, 85, 76)];
 
+	this.uppercutFrames = [new Frame(18, 750, 50, 93), new Frame(73, 744, 54, 99),
+							new Frame(134, 735, 72, 108), new Frame(215, 718, 47, 125),
+							new Frame(269, 724, 43, 119), new Frame(269, 724, 43, 119),
+							new Frame(269, 724, 43, 119), new Frame(269, 724, 43, 119)];
+
+	this.gettingAttackedFrames = [new Frame(18, 858, 50, 104), new Frame(74, 860, 52, 102),
+									new Frame(134, 861, 56, 101)];
+
+	this.dyingFrames = [new Frame(504, 979, 65, 91), new Frame(577, 1020, 62, 50),
+						new Frame(648, 1003, 59, 67), new Frame(714, 1013, 54, 57),
+						new Frame(775, 1032, 71, 38), new Frame(852, 1026, 66, 43)];
 
 	this.idleAnimation = new Animation(this.img,
 		91, 18, 51, 105, 0.10, 12, true, false, false, null);
@@ -96,13 +127,13 @@ function Subzero(game, x, y) {
 		974, 18, 51, 105, 0.10, this.blockFrames.length, false, true, true, this.blockFrames);
 
 	this.blockCrouchRightAnimation = new Animation(this.img,
-		1350, 50, 45, 73, 0.10, 1, false, false, true, null);
+		1350, 50, 45, 73, 0.10, 1, false, false, true, this.crouchBlockFrames);
 	this.blockCrouchLeftAnimation = new Animation(this.imgr,
-		408, 50, 45, 73, 0.10, 1, false, false, true, null);
+		408, 50, 45, 73, 0.10, 1, false, true, true, this.crouchBlockFrames);
 
 	this.punchRightAnimation = new Animation(this.img,
 		17, 262, 52, 103, 0.10, this.punchFrames.length, false, false, false, this.punchFrames);
-	this.punchLeftAnimiation = new Animation(this.imgr,
+	this.punchLeftAnimation = new Animation(this.imgr,
 		17, 262, 52, 103, 0.10, this.punchFrames.length, false, true, false, this.punchFrames);
 
 	this.punchRight2Animation = new Animation(this.img,
@@ -130,24 +161,43 @@ function Subzero(game, x, y) {
 	this.jumpLeftAnimation = new Animation(this.imgr,
 		727, 148, 44, 105, 0.10, this.jumpFrames.length, false, true, false, this.jumpFrames);
 
-	//TODO: jumpkicks, uppercuts, attackeds.
+	//TODO:  attackeds.
+	this.jumpKickRightAnimation = new Animation(this.img,
+		1056, 776, 47, 67, 0.10, this.jumpKickFrames.length, false, false, false, this.jumpKickFrames);
+	this.jumpKickLeftAnimation = new Animation(this.imgr,
+		1056, 776, 47, 67, 0.10, this.jumpKickFrames.length, false, true, false, this.jumpKickFrames);
+
+	this.uppercutRightAnimation = new Animation(this.img,
+		18, 750, 50, 93, 0.10, this.uppercutFrames.length, false, false, false, this.uppercutFrames);
+	this.uppercutLeftAnimation = new Animation(this.imgr,
+		18, 750, 50, 93, 0.10, this.uppercutFrames.length, false, true, false, this.uppercutFrames);
+
+	this.attackedRightAnimation = new Animation(this.img,
+		18, 858, 50, 104, 0.10, this.gettingAttackedFrames.length, false, false, false, this.gettingAttackedFrames);
+	this.attackedLeftAnimation = new Animation(this.imgr,
+		18, 858, 50, 104, 0.10, this.gettingAttackedFrames.length, false, true, false, this.gettingAttackedFrames);
+
+	this.dyingAnimation = new Animation(this.img,
+		0, 0, 0, 0, 0.10, this.dyingFrames.length, false, false, false, this.dyingFrames);
 
 	this.animationCollection = [this.idleAnimation, this.idleLeftAnimation,
 			this.moveAnimation, this.moveLeftAnimation, this.crouchAnimation,
 			this.crouchLeftAnimation, this.blockRightAnimation,
 			this.blockLeftAnimation, this.blockCrouchRightAnimation,
 			this.blockCrouchLeftAnimation, this.punchRightAnimation,
-			this.punchLeftAnimiation, this.punchRight2Animation, this.punchLeft2Animation,
+			this.punchLeftAnimation, this.punchRight2Animation, this.punchLeft2Animation,
 			this.punchRight3Animation, this.punchLeft3Animation, this.kickRightAnimation,
 			this.kickLeftAnimation, this.kickRight2Animation, this.kickLeft2Animation,
-			this.jumpRightAnimation, this.jumpLeftAnimation];
+			this.jumpRightAnimation, this.jumpLeftAnimation, this.jumpKickRightAnimation,
+			this.jumpKickLeftAnimation, this.uppercutRightAnimation, this.uppercutLeftAnimation,
+			this.attackedRightAnimation, this.attackedLeftAnimation];
 
 	for (var i = 0; i < this.animationCollection.length; i++) {
 		//console.log(i);
 		this.animationCollection[i].actualWidth = 51;
 		this.animationCollection[i].actualHeight = 105;
 	}
-
+	this.healthBar = new HealthBar(100, this.game, 20, 100);
 
 	this.currentAnimation = this.idleAnimation;
 
@@ -162,20 +212,659 @@ function Subzero(game, x, y) {
 
 Subzero.prototype = new Entity();
 Subzero.prototype.constructor = Subzero;
+var attack = false;
+var count = 0;
+var count2 = 0
 
 Subzero.prototype.update = function() {
-	this.counter = (this.counter + 1) % 100;
-	if (this.counter === 0) {
-		this.setA = (this.setA + 1) % this.animationCollection.length;
+	
+	if (this.healthBar.hp <= 0) {
+		this.currentAnimation = this.dyingAnimation;
+		if (this.dyingAnimation.isDone()) {
+			this.removeFromWorld = true;
+		}
 	}
 
+	 
+
+	if (!this.isBot) {
+		
 	
-		this.currentAnimation = this.animationCollection[this.setA];
-	
+
+
+		if (!this.game.crouch) {
+			this.crouchAnimation.elapsedTime = 0;
+			this.crouchLeftAnimation.elapsedTime = 0;
+			
+		}
+		if (!this.game.block) {
+			this.blockLeftAnimation.elapsedTime = 0;
+			this.blockRightAnimation.elapsedTime = 0;
+		}
+		if (this.game.jump) {
+			this.jumping = true;
+			if (this.game.jumpKick) {
+				this.jumpKicking = true;
+			}
+		} else if (this.game.punch) {
+			//console.log("you pressed punch key");
+			this.punching = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.punch2) {
+			this.punching2 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.punch3) {
+			this.punching3 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.kick) {
+		this.kicking = true;
+		this.movingLeft = false;
+		this.idling = false;
+		this.crouching = false;
+		this.movingRight = false;
+		this.blocking = false;
+		} 
+		else if (this.game.kick2) {
+			this.kicking2 = true;
+			this.movingLeft = false;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.blocking = false;
+		} else if (this.game.block) {
+
+			this.blocking = true;
+			this.movingLeft = false;
+			this.idling = false;
+			//this.crouching = false;
+			this.movingRight = false;
+			if (this.game.crouch) {
+				this.crouching = true;
+			} else {
+				this.crouching = false;
+			}
+		} else if (this.game.uppercut) {
+			this.uppercutting = true;
+		}else if (this.game.crouch) {
+			this.crouching = true;
+			this.idling = false;
+			this.movingRight = false;
+			this.movingLeft = false;
+			this.punching = false;
+			//this.blocking = false;
+			if (this.game.block) {
+				this.blocking = true;
+			} else {
+				this.blocking = false;
+			}
+
+		} else if (this.game.moveRight) {
+			this.movingRight = true;
+			this.idling = false;
+			this.crouching = false;
+			this.movingLeft = false;
+			this.punching = false;
+			this.blocking = false;
+			this.facing = "R";
+		} else if (this.game.moveLeft) {
+			this.movingLeft = true;
+			this.idling = false;
+			this.crouching = false;
+			this.movingRight = false;
+			this.punching = false;
+			this.blocking = false;
+			this.facing = "L";
+		//} else if (this.game.jump) {
+		//	this.jumping = true;
+		//	this.idling = false;
+		//	this.crouching = false;
+			//this.movingRight = false;
+		//	this.punching = false;
+		//	this.blocking = false;
+		}else  if (!this.game.moveRight && !this.game.crouch && !this.game.moveLeft
+					&& !this.game.punch) {
+			this.idling = true;
+			this.movingRight = false;
+			this.crouching = false;
+			this.movingLeft = false;
+			this.punching = false;
+			this.blocking = false;
+		} 
+
+
+
+		//FUN EASTER EGG STUFF, BETTER TO REMOVE in prototype!
+		//ULTRA SPEED is activated when "U" key is pressed
+		//and deactivated when "U" is pressed again
+		/*if (this.game.ultraSpeed) {
+			this.speed += 0.1;
+		} else {
+			this.speed = 5;
+		}*/
+
+		 if (this.gettingAttacked) {
+		 	if (this.blocking) {
+				if (this.facing === "R") {
+					if (this.crouching) {
+						this.currentAnimation = this.blockCrouchRightAnimation;
+					} else {
+						this.currentAnimation = this.blockRightAnimation;
+					}
+				} else {
+					if (this.crouching) {
+						this.currentAnimation = this.blockCrouchLeftAnimation;
+					} else {
+						this.currentAnimation = this.blockLeftAnimation;
+					}
+				}
+			} else {
+	 			this.currentAnimation = this.facing === "L" ? this.attackedLeftAnimation : this.attackedRightAnimation;
+	 			if (this.currentAnimation.isDone()) {
+			
+	 				this.currentAnimation.elapsedTime = 0;
+	 				this.gettingAttacked = false;
+	 				//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+	 			}
+	 		}	
+		} else  if (this.blocking) {
+			if (this.facing === "R") {
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchRightAnimation;
+				} else {
+					this.currentAnimation = this.blockRightAnimation;
+				}
+			} else {
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchLeftAnimation;
+				} else {
+					this.currentAnimation = this.blockLeftAnimation;
+				}
+			}
+		} else if (this.punching) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRightAnimation;
+				if (this.punchRightAnimation.isDone()) {
+					this.punchRightAnimation.elapsedTime = 0;
+					this.punching = false;
+					this.game.punch = null;
+				}
+			} else if (this.facing === "L") {
+				if (this.punchLeftAnimation.isDone()) {
+					this.punchLeftAnimation.elapsedTime = 0;
+					this.punching = false;
+					this.game.punch = null;
+				}
+				this.currentAnimation = this.punchLeftAnimation;
+			}
+		} else if (this.punching2) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRight2Animation;
+				if (this.punchRight2Animation.isDone()) {
+					this.punchRight2Animation.elapsedTime = 0;
+					this.punching2 = false;
+					this.game.punch2 = null;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.punchLeft2Animation;
+				if (this.punchLeft2Animation.isDone()) {
+					this.punchLeft2Animation.elapsedTime = 0;
+					this.punching2 = false;
+					this.game.punch2 = null;
+				}
+			}
+		} else if (this.punching3) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.punchRight3Animation;
+				if (this.punchRight3Animation.isDone()) {
+					this.punchRight3Animation.elapsedTime = 0;
+					this.punching3 = false;
+					this.game.punch3 = null;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.punchLeft3Animation;
+				if (this.punchLeft3Animation.isDone()) {
+					this.punchLeft3Animation.elapsedTime = 0;
+					this.punching3 = false;
+					this.game.punch3 = null;
+				}
+			}
+		} else if (this.kicking) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.kickRightAnimation;
+				if (this.kickRightAnimation.isDone()) {
+					this.kickRightAnimation.elapsedTime = 0;
+					this.kicking = false;
+					this.game.kick = false;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.kickLeftAnimation;
+				if (this.kickLeftAnimation.isDone()) {
+					this.kickLeftAnimation.elapsedTime = 0;
+					this.kicking = false;
+					this.game.kick = false;
+				}
+			}
+		} else if(this.kicking2) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.kickRight2Animation;
+				if (this.kickRight2Animation.isDone()) {
+					this.kickRight2Animation.elapsedTime = 0;
+					this.kicking2 = false;
+					this.game.kick2 = false;
+				}
+			} else if (this.facing === "L") {
+				this.currentAnimation = this.kickLeft2Animation;
+				if (this.kickLeft2Animation.isDone()) {
+					this.kickLeft2Animation.elapsedTime = 0;
+					this.kicking2 = false;
+					this.game.kick2 = false;
+				}
+			}
+		} else if (this.jumping) {
+			if (this.facing === "R") {
+				if (this.jumpKicking) {
+					this.currentAnimation.readyFrames = this.jumpKickFrames;
+				} else {
+					this.currentAnimation = this.jumpRightAnimation;
+				}
+				if (this.currentAnimation.isDone()) {
+					this.jumpRightAnimation.readyFrames = null;
+					this.jumpKickRightAnimation.elapsedTime = 0;
+					this.jumpRightAnimation.elapsedTime = 0;
+					this.jumping = false;
+					this.jumpKicking = false;
+					this.game.jumpKick = null;
+					this.game.jump = null;
+				}
+				console.log("Scorpions move right " +  this.movingRight);
+				if (this.movingRight && this.x < 1160) {
+					this.x += this.speed;
+				}
+			} else if (this.facing === "L") {
+				if (this.jumpKicking) {
+					this.currentAnimation.readyFrames = this.jumpKickFrames;
+				} else {
+					this.currentAnimation = this.jumpLeftAnimation;
+				}
+				if (this.currentAnimation.isDone()) {
+					this.jumpLeftAnimation.readyFrames = null;
+					this.jumpLeftAnimation.elapsedTime = 0;
+					this.jumpKickLeftAnimation.elapsedTime = 0;
+					this.jumpKicking = false;
+					this.jumping = false;
+					this.game.jumpKick = null;
+					this.game.jump = null;
+				}
+				if (this.movingLeft && this.x >= 0) {
+					this.x -= this.speed;
+				}
+			}
+			var jumpDistance = this.currentAnimation.elapsedTime / this.currentAnimation.totalTime;
+				var totalHeight = 360;
+				if (jumpDistance > 0.5) {
+					jumpDistance = 1 - jumpDistance;
+				}
+				var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
+				this.y = 420 - height;
+		} else if (this.uppercutting) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.uppercutRightAnimation;
+				if (this.currentAnimation.isDone()) {
+					this.uppercutRightAnimation.elapsedTime = 0;
+					this.uppercutting = false;
+					this.game.uppercut = null;
+				}
+			} else {
+				this.currentAnimation = this.uppercutLeftAnimation;
+				if (this.currentAnimation.isDone()) {
+					this.uppercutLeftAnimation.elapsedTime = 0;
+					this.uppercutting = false;
+					this.game.uppercut = null;
+				}
+			}
+		} else if (this.movingRight) {
+			this.currentAnimation = this.moveAnimation;
+
+			if (this.x < 1160) {
+				this.x += this.speed;
+			}
+			
+			
+		} else if (this.movingLeft) {
+			this.currentAnimation = this.moveLeftAnimation;
+
+			if (this.x >= 0) {
+				this.x += -1 * (this.speed);
+			}
+		} else  if (this.crouching === true) {
+			if (this.facing === "R") {
+				this.currentAnimation = this.crouchAnimation;
+			} else {
+				if (this.uppercutting) {
+					
+				} else {
+					this.currentAnimation = this.crouchLeftAnimation;
+				}
+			}
+		} else  {
+			if (this.facing === "R") {
+				this.currentAnimation = this.idleAnimation;
+			} else {
+				this.currentAnimation = this.idleLeftAnimation;
+			}
+		}
+		//var heightDiff = this.boxHeight - this.currentAnimation.getFrameHeight();
+		//this.y = heightDiff === 0 ? this.y : this.y + (heightDiff * this.scaleBy);
+		//this.currentAnimation.getFrameWidth();
+		//this.currentAnimation.getFrameHeight();
+		
+		//console.log("my x is: " + this.x);
+		//console.log("myHeight is: " + this.currentAnimation.getFrameHeight());
+		//console.log("myWidth is:  " + this.currentAnimation.getFrameWidth());
+
+	} else {
+		// if (!this.gettingAttacked) {
+		// 	var next = Math.random();
+			
+		// 		this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+		// }
+	}
+
+	//console.log("my y is: " + this.currentAnimation.getY(this.y, this.scaleBy) + 
+			//"\n my x is: " + this.x + "\n myHeight is: " + this.currentAnimation.getFrameHeight() * this.scaleBy + 
+		//"\n myWidth is:  " + this.currentAnimation.getFrameWidth() * this.scaleBy);
+		var currentBox = new Box(this.currentAnimation.getX(this.x, this.scaleBy),
+			this.currentAnimation.getY(this.y, this.scaleBy),
+			this.currentAnimation.getFrameWidth() * this.scaleBy,
+			this.currentAnimation.getFrameHeight() * this.scaleBy);
+		this.currentBox = currentBox;
+
+	//Detect collision with other entities
+	var range = 116
+	if(count > 2000){
+		count = 0;
+	}
+	for (var i = 0; i < this.game.entities.length; i++) {
+		var ent = this.game.entities[i];
+		if(!(this.isBot)){
+				console.log("COUNT "+count)
+
+				//BOTS ATTACK LOGIC
+				//Player on the right
+				if (ent !== this && ent.currentBox && this.collide(ent)) {
+					if(this.game.kick && this.currentAnimation.isDone()) {
+						attack = true;
+					} else {
+						attack = false;
+					}
+					console.log(Math.abs(this.x - ent.x));
+					if (this.x > ent.x && Math.abs(this.x - ent.x) < range) {
+						
+						count++;
+		
+						if(count % 30 == 0) {
+							rand = Math.floor(Math.random() * 3);
+						}
+						//console.log("Right");
+						if(this.kicking){
+							attack = true;
+							console.log("kicking");
+							//ent.gettingAttacked == true;
+						}
+						if(!this.isAttacking()){
+							
+							console.log("Here's the random number "+ rand);
+							//var rand = Math.floor(Math.random() * 3);
+							if(rand === 0){
+								ent.currentAnimation = ent.kickRightAnimation;
+								if (this.blocking) {
+									ent.attackHandler(this, 0.3);
+								} else {
+									ent.attackHandler(this, 1);
+									this.gettingAttacked = true;
+								}
+								console.log("Elapsed " + ent.game.clockTick);
+								if(ent.currentAnimation.isDone()) {
+									console.log("I'm done kicking right");
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+							if(rand === 1){
+								ent.currentAnimation = ent.punchRightAnimation;
+								if (this.blocking) {
+									ent.attackHandler(this, 0.3);
+								} else {
+									ent.attackHandler(this, 1);
+								}
+								if(ent.currentAnimation.isDone()) {
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+							if(rand === 2) {
+								ent.currentAnimation = ent.blockRightAnimation
+								if(ent.currentAnimation.isDone()) {
+									
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+		
+							
+						} else {
+							ent.currentAnimation =  ent.attackedRightAnimation;
+							if (ent.isBlocking) {
+								this.attackHandler(ent, 0.3)
+							} else {
+								this.attackHandler(ent, 1);
+							}
+							if (ent.currentAnimation.isDone()) {
+			
+	 							ent.currentAnimation.elapsedTime = 0;
+	 							ent.gettingAttacked = false;
+	 							//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+	 						}	
+						}
+						
+						//ent.velocity = 0;
+
+						//Player on the left
+					} if (this.x < ent.x && (Math.abs(this.x - ent.x) < range+60)) {
+						
+						if(count2 % 50 == 0) {
+							rand2 = Math.floor(Math.random() * 3);
+						}
+						count2++;
+						if(!this.isAttacking()){
+							
+							if(rand2 == 0){
+								console.log("Left");
+								ent.currentAnimation = ent.kickLeftAnimation
+								if (this.blocking) {
+									ent.attackHandler(this, 0.3);
+								} else {
+									ent.attackHandler(this, 1);
+								}
+								console.log("Elapsed " + ent.game.clockTick)
+								if(ent.currentAnimation.isDone()) {
+									console.log("I'm done kicking right")
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+							if(rand2 == 1){
+								
+								ent.currentAnimation = ent.punchLeftAnimation
+								if (this.blocking) {
+									ent.attackHandler(this, 0.3);
+								} else {
+									ent.attackHandler(this, 1);
+								}
+								if(ent.currentAnimation.isDone()) {
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+							if(rand2 == 2) {
+								ent.currentAnimation = ent.blockLeftAnimation
+
+								if(ent.currentAnimation.isDone()) {
+									
+									//rand = Math.floor(Math.random() * Math.floor(2))
+								}
+							}
+							if(ent.healthBar.hp <=0) {
+								ent.removeFromWorld = true;
+							}
+							if(this.healthBar.hp <=0){
+								ent.currentAnimation = ent.idleAnimation;
+							}
+						} else {
+							ent.currentAnimation =  ent.attackedLeftAnimation;
+							if (ent.isBlocking) {
+								this.attackHandler(ent, 0.3)
+							} else {
+								this.attackHandler(ent, 1);
+							}
+							if (ent.currentAnimation.isDone()) {
+			
+	 							ent.currentAnimation.elapsedTime = 0;
+	 							ent.gettingAttacked = false;
+	 							//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
+	 						}	
+						}
+					}
+					// Scorpion.prototype.isAttacking = function() {
+					//     return (this.punching || this.punching2 || this.punching3
+					//         || this.kicking || this.kicking2 || this.uppercutting
+					//         || this.jumpKicking);
+					//}
+					//this.attackHandler(ent, 0.3);
+					//this.x += this.velocity.x * this.game.clockTick;
+					//this.y += this.velocity.y * this.game.clockTick;
+					//ent.x += ent.velocity.x * this.game.clockTick;
+					//ent.y += ent.velocity.y * this.game.clockTick;
+		
+					//console.log("They collide!");
+				}
+			   
+			   //BOTS FOLLOW LOGIC
+				if(ent !== this && ent.currentBox && !(this.collide(ent))){
+					//attack == false;
+					console.log("THE NUMBER " + Math.abs(this.x - ent.x))
+					console.log(this.x < ent.x);
+					console.log("IF " + (Math.abs(this.x - ent.x) < range));
+					//this.x += this.velocity.x * this.game.clockTick;
+					// console.log("Box " +ent.currentBox);
+					// console.log("Goku " +this.x);
+					// console.log("Scorpion "+ ent.x);
+					if(this.x < ent.x && !(Math.abs(this.x - ent.x) < range)) {
+						ent.facing = "L";
+						ent.currentAnimation = ent.moveLeftAnimation;
+						ent.x -= ent.velocity.x * this.game.clockTick;
+					}
+					else if(this.x > ent.x && !(Math.abs(this.x - ent.x) < range-10)) {
+						ent.facing = "R";
+						ent.currentAnimation = ent.moveAnimation
+						ent.x += ent.velocity.x * this.game.clockTick;
+					}
+					if(this.game.kick && this.currentAnimation.isDone()) {
+						attack = true;
+					} else {
+						attack = false;
+					}
+					
+					
+					
+		
+				}
+			
+
+		}
+		// if (ent !== this && ent.currentBox && this.collide(ent)) {
+		// 	console.log("They collide!");
+
+		// 	if (this.isAttacking()) {
+		// 		if (this.facing === "R" && this.isToTheLeftOf(ent)) {
+		// 			if (!ent.blocking) {
+		// 				this.attackHandler(ent, 1);
+		// 			} else {
+		// 				this.attackHandler(ent, 0.3);
+		// 			}
+		// 			ent.facing = "L";
+		// 		} else if (this.facing === "L" && !this.isToTheLeftOf(ent)) {
+		// 			if (!ent.blocking) {
+		// 				this.attackHandler(ent, 1);
+		// 			} else {
+		// 				this.attackHandler(ent, 0.3);
+		// 			}
+		// 			ent.facing = "R";
+		// 		}
+		// 	}
+		// }
+	}
+
+
 	Entity.prototype.update.call(this);
 }
 
-Subzero.prototype.draw = function(ctx) {
-	this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x, this.y, this.scaleBy);
+Subzero.prototype.collide = function(other) {
+	return this.currentBox.collide(other.currentBox);
+}
+
+Subzero.prototype.isAttacking = function() {
+	return (this.punching || this.punching2 || this.punching3
+		|| this.kicking || this.kicking2 || this.uppercutting
+		|| this.jumpKicking);
+}
+
+Subzero.prototype.isToTheLeftOf = function(other) {
+	return (this.x < other.x);
+}
+
+Subzero.prototype.attackHandler = function(other, mult) {
+	if (!this.isBot) {
+		mult *= 2.3;
+	} else {
+		mult *= 2;
+	}
+	if (this.currentAnimation === this.punchRightAnimation
+		|| this.currentAnimation === this.punchLeftAnimation) {
+		other.healthBar.hp -= 0.05 * mult;
+	} else if (this.currentAnimation === this.punchRight2Animation
+		|| this.currentAnimation === this.punchLeft2Animation) {
+		other.healthBar.hp -= 0.05 * mult;
+	} else if (this.currentAnimation === this.punchRight3Animation
+		|| this.currentAnimation === this.punchLeft3Animation) {
+		other.healthBar.hp -= 0.0625 * mult;		
+	} else if (this.currentAnimation === this.kickRightAnimation
+		|| this.currentAnimation === this.kickLeftAnimation) {
+		other.healthBar.hp -= 0.05 * mult;	
+	} else if (this.currentAnimation === this.kickRight2Animation
+		|| this.currentAnimation === this.kickLeft2Animation) {
+		other.healthBar.hp -= 0.05 * mult;
+	}
+	
+		other.gettingAttacked = true;
+	
+}
+
+//Draws current frame of current animation.
+Subzero.prototype.draw = function(ctx, xView, yView) {
+	if (!this.isBot) {
+		this.healthBar.draw(ctx);
+		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.xView, this.yView, this.scaleBy);
+	} else {
+		this.healthBar.draw(ctx);
+		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
+	}
 	Entity.prototype.draw.call(this);
 }

@@ -47,6 +47,13 @@ GameEngine.prototype.init = function (ctx) {
     this.timer = new Timer();
     this.startInput();
 
+
+
+
+    // Viewport
+    this.xView = 0;
+    this.yView = 0;
+
     //Scorpion's status fields.
     this.moveRight = null;
     this.crouch = null;
@@ -149,7 +156,7 @@ GameEngine.prototype.startInput = function() {
             that.block = null;
         }
         //Gokku's (unicorn's)
-        if (String.fromCharCode(e.which) === 'A') that.left = false;
+        if (String.fromCharCode(e.which) === 'A') that.left = null;
         e.preventDefault();
     }, false);
 
@@ -166,7 +173,7 @@ GameEngine.prototype.draw = function () {
     this.ctx.clearRect(0, 0, this.surfaceWidth, this.surfaceHeight);
     this.ctx.save();
     for (var i = 0; i < this.entities.length; i++) {
-        this.entities[i].draw(this.ctx);
+        this.entities[i].draw(this.ctx, this.xView, this.yView);
     }
     this.ctx.restore();
 }
