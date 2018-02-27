@@ -116,7 +116,7 @@ GameEngine.prototype.startInput = function() {
             } else if (!that.punch2 && !that.punch3 && !that.kick && !that.kick2
                 && !that.jump && !that.crouch){
                 that.punch = true;
-            } else if (that.crouch) {
+            } else if (that.crouch && !that.jump && !that.kick && !that.kick2) {
                 that.uppercut = true;
             }
         } else if (e.keyCode === 105) {
