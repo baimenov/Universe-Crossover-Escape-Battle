@@ -379,7 +379,9 @@ Scorpion.prototype.checkGameStates = function() {
 /*Check my states and update animations.*/
 Scorpion.prototype.checkMyStates = function() {
 	if (this.gettingAttacked) {
-		this.gettingAttackedCounter++;
+		if (!this.blocking) {
+			this.gettingAttackedCounter++;
+		}
 
 		//this.jumping = false;
 		this.punching = false;
@@ -743,9 +745,62 @@ Scorpion.prototype.update = function() {
 	}
 	for (var i = 0; i < this.game.entities.length; i++) {
 		var ent = this.game.entities[i];
-		if(!(this.isBot)){
-				//console.log("COUNT "+count)
-
+		if(!this.isBot){
+				if (ent.gettingAttacked) {
+					if (!ent.blocking) {
+						ent.gettingAttackedCounter++;
+					}
+					ent.punching = false;
+					ent.punching2 = false;
+					ent.punching3 = false;
+					ent.kicking = false;
+					ent.kicking2 = false;
+					if (ent.jumping) {
+						ent.currentAnimation = ent.facing === "L" ? ent.attackedLeftAnimation : ent.attackedRightAnimation;
+						ent.jumping = false;
+						ent.y = 420;
+						if (ent.currentAnimation.isDone()) {
+				 			ent.currentAnimation.elapsedTime = 0;
+				 			ent.gettingAttacked = false;
+				 			//ent.currentAnimation = ent.facing === "L" ? ent.idleLeftAnimation : ent.idleAnimation;
+				 		}
+					} else if (ent.blocking) {
+						if (ent.facing === "R") {
+							if (ent.crouching) {
+								ent.currentAnimation = ent.blockCrouchRightAnimation;
+							} else {
+								ent.currentAnimation = ent.blockRightAnimation;
+							}
+						} else {
+							if (ent.crouching) {
+								ent.currentAnimation = ent.blockCrouchLeftAnimation;
+							} else {
+								ent.currentAnimation = ent.blockLeftAnimation;
+							}
+						}
+					} else {
+						if (ent.gettingAttackedCounter >= 100) {
+							ent.currentAnimation = ent.facing === "L" ? ent.knockBackLeftAnimation : ent.knockBackRightAnimation;
+							if (ent.x > 10 && ent.x < 3700) {
+								ent.x += ent.facing === 'L' ? 5 : -5;
+							}
+							if (ent.currentAnimation.isDone()) {
+								console.log("should be done falling");
+								ent.gettingAttacked = false;
+								ent.gettingAttackedCounter = 0;
+								ent.knockBackLeftAnimation.elapsedTime = 0;
+								ent.knockBackRightAnimation.elapsedTime = 0;
+							}
+						} else {
+				 			ent.currentAnimation = ent.facing === "L" ? ent.attackedLeftAnimation : ent.attackedRightAnimation;
+				 			if (ent.currentAnimation.isDone()) {
+				 				ent.currentAnimation.elapsedTime = 0;
+				 				ent.gettingAttacked = false;
+				 				//ent.currentAnimation = ent.facing === "L" ? ent.idleLeftAnimation : ent.idleAnimation;
+				 			}
+				 		}
+				 	}	
+				} else {
 				//BOTS ATTACK LOGIC
 				//Player on the right
 				if (ent !== this && ent.currentBox && this.collide(ent)) {
@@ -777,7 +832,7 @@ Scorpion.prototype.update = function() {
 								this.facing = "L";
 								console.log("bot is kicking");
 								if (this.blocking) {
-									ent.attackHandler(this, 0.3);
+									ent.attackHandler(this, 0.3);		
 								} else {
 									ent.attackHandler(this, 1);
 									this.gettingAttacked = true;
@@ -811,11 +866,14 @@ Scorpion.prototype.update = function() {
 		
 							
 						} else {
-							ent.currentAnimation =  ent.attackedRightAnimation;
+							
 							if (ent.isBlocking) {
-								this.attackHandler(ent, 0.3)
+								this.attackHandler(ent, 0.3);
+
 							} else {
 								this.attackHandler(ent, 1);
+								//ent.currentAnimation =  ent.attackedRightAnimation;
+								ent.gettingAttacked = true;
 							}
 							if (ent.currentAnimation.isDone()) {
 			
@@ -879,11 +937,12 @@ Scorpion.prototype.update = function() {
 								ent.currentAnimation = ent.idleAnimation;
 							}
 						} else {
-							ent.currentAnimation =  ent.attackedLeftAnimation;
+							
 							if (ent.isBlocking) {
 								this.attackHandler(ent, 0.3)
 							} else {
 								this.attackHandler(ent, 1);
+								ent.currentAnimation =  ent.attackedLeftAnimation;
 							}
 							if (ent.currentAnimation.isDone()) {
 			
@@ -938,7 +997,7 @@ Scorpion.prototype.update = function() {
 		
 				}
 			
-
+			}
 		}
 		// if (ent !== this && ent.currentBox && this.collide(ent)) {
 		// 	console.log("They collide!");
