@@ -211,6 +211,8 @@ function Scorpion(game, x, y) {
 	this.xView = x;
 	this.yView = y;
 
+	this.botBlockingCounter = 0;
+
 	Entity.call(this, game, x, y);
 }
 var kicksnd = new Audio("./sounds/kick.mp3");
@@ -254,10 +256,12 @@ Scorpion.prototype.checkGameStates = function() {
 			if (this.game.jumpKick) {
 			//	this.jumpKicking = true;
 			}
-		} else if (this.game.punch) {
+		} else if (this.game.punch ) {
 			//console.log("you pressed punch key");
-			if (!this.gettingAttacked) {
+			if (!this.gettingAttacked && !this.knockingBack) {
 				this.punching = true;
+			} else {
+				this.game.punch = null;
 			}
 			this.movingLeft = false;
 			this.idling = false;
@@ -268,7 +272,7 @@ Scorpion.prototype.checkGameStates = function() {
 
 			if (!this.gettingAttacked) {
 				this.punching2 = true;
-			}
+			} 
 			this.movingLeft = false;
 			this.idling = false;
 			this.crouching = false;
@@ -283,9 +287,11 @@ Scorpion.prototype.checkGameStates = function() {
 			this.crouching = false;
 			this.movingRight = false;
 			this.blocking = false;
-		} else if (this.game.kick) {
-			if (!this.gettingAttacked) {
+		} else if (this.game.kick ) {
+			if (!this.gettingAttacked && !this.knockingBack) {
 				this.kicking = true;
+			} else {
+				this.game.kick = null;
 			}
 			this.movingLeft = false;
 			this.idling = false;
@@ -304,7 +310,9 @@ Scorpion.prototype.checkGameStates = function() {
 			this.blocking = false;
 		} else if (this.game.block) {
 
-			this.blocking = true;
+			if (!this.gettingAttacked && !this.knockingBack) {
+				this.blocking = true;
+			}
 			this.movingLeft = false;
 			this.idling = false;
 			//this.crouching = false;
@@ -399,7 +407,7 @@ Scorpion.prototype.checkMyStates = function() {
 	 			this.gettingAttacked = false;
 	 			//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
 	 		}
-		} else if (this.blocking) {
+		} else if (this.blocking && !this.knockingBack) {
 				if (this.facing === "R") {
 					if (this.crouching) {
 						this.currentAnimation = this.blockCrouchRightAnimation;
@@ -417,11 +425,13 @@ Scorpion.prototype.checkMyStates = function() {
 				if (this.gettingAttackedCounter >= 100) {
 					
 					this.currentAnimation = this.facing === "L" ? this.knockBackLeftAnimation : this.knockBackRightAnimation;
+					this.knockingBack = true;
 					if (this.x > 10 && this.x < 3700) {
 						this.x += this.facing === 'L' ? 5 : -5;
 					}
 					if (this.currentAnimation.isDone()) {
 						this.gettingAttacked = false;
+						this.knockingBack = false;
 						this.gettingAttackedCounter = 0;
 						this.knockBackLeftAnimation.elapsedTime = 0;
 						this.knockBackRightAnimation.elapsedTime = 0;
@@ -857,9 +867,8 @@ Scorpion.prototype.update = function() {
 								}
 							}
 							if(rand === 2) {
-								ent.currentAnimation = ent.blockRightAnimation
+								ent.currentAnimation = ent.blockRightAnimation;
 								if(ent.currentAnimation.isDone()) {
-									
 									//rand = Math.floor(Math.random() * Math.floor(2))
 								}
 							}
@@ -867,11 +876,12 @@ Scorpion.prototype.update = function() {
 							
 						} else {
 							
+							
 							if (ent.isBlocking) {
-								this.attackHandler(ent, 0.3);
+								this.attackHandler(ent, 3);
 
 							} else {
-								this.attackHandler(ent, 1);
+								this.attackHandler(ent, 9);
 								//ent.currentAnimation =  ent.attackedRightAnimation;
 								ent.gettingAttacked = true;
 							}
@@ -939,9 +949,9 @@ Scorpion.prototype.update = function() {
 						} else {
 							
 							if (ent.isBlocking) {
-								this.attackHandler(ent, 0.3)
+								this.attackHandler(ent, 3)
 							} else {
-								this.attackHandler(ent, 1);
+								this.attackHandler(ent, 9);
 								ent.currentAnimation =  ent.attackedLeftAnimation;
 							}
 							if (ent.currentAnimation.isDone()) {
