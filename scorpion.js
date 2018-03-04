@@ -208,6 +208,10 @@ function Scorpion(game, x, y) {
 	this.attackDamageMap.set(this.kicking, 0.4);
 	this.attackDamageMap.set(this.kicking2, 0.2);
 
+	this.isDead = false;
+
+	this.botCounter = 0;
+
 	this.xView = x;
 	this.yView = y;
 
@@ -941,9 +945,10 @@ Scorpion.prototype.update = function() {
 								}
 							}
 							if(ent.healthBar.hp <=0) {
+								ent.isDead = true;
 								ent.removeFromWorld = true;
 							}
-							if(this.healthBar.hp <=0){
+							if(this.healthBar.hp <= 0) {
 								ent.currentAnimation = ent.idleAnimation;
 							}
 						} else {

@@ -259,14 +259,14 @@ AM.downloadAll(function () {
 	var scorpion = new Scorpion(gameEngine, 200, 420);
 	camera.follow(scorpion, canvas.width/2, canvas.height/2);
 	var scorpionBot = new Scorpion(gameEngine, 1500, 420);
-	var scorpionBot2 = new Scorpion(gameEngine, 8220, 420);
-	var subzero = new Subzero(gameEngine, -5000, 420);
+	var scorpionBot2 = new Scorpion(gameEngine, 3000, 420);
+	var subzero = new Subzero(gameEngine, 1000, 420);
 	subzero.isBot = true;
 	scorpionBot.isBot = true;
 	scorpionBot.speed = 2;
 	scorpionBot2.isBot = true;
-	scorpionBot.healthBar.x = 600;
-	scorpionBot2.healthBar.x = 600;
+	scorpionBot.healthBar.x = 740;
+	scorpionBot2.healthBar.x = 740;
 	scorpionBot2.healthBar.y = 50;
 	subzero.speed = 3;
 	scorpionBot2.speed = 3.76;
@@ -279,7 +279,8 @@ AM.downloadAll(function () {
 	gameEngine.addEntity(bg);
 	gameEngine.addEntity(scorpion);
 	gameEngine.addEntity(camera);
-	gameEngine.addEntity(scorpionBot);
+	gameEngine.addEntity(subzero);
+
 	//gameEngine.addEntity(scorpionBot2);
 	// gameEngine.addEntity(gokku);
 	//gameEngine.addEntity(subzero);
