@@ -261,8 +261,10 @@ Scorpion.prototype.checkGameStates = function() {
 			this.blockRightAnimation.elapsedTime = 0;
 		}
 		if (this.game.jump) {
-			if (!this.gettingAttacked) {
+			if (!this.gettingAttacked && !this.knockingBack) {
 				this.jumping = true;
+			} else {
+				this.game.jump = null;
 			}
 			this.game.block = null;
 			this.blocking = false;
