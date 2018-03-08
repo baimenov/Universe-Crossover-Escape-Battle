@@ -37,6 +37,8 @@ function GameEngine() {
 
     this.moveRight = null;
     this.crouch = null;
+
+    this.gameover = null;
     
 }
 

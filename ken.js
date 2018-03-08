@@ -1,20 +1,31 @@
 /*
-function Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration,
-    frames, loop, reverse, saveLast, readyFrames) 
-    */
-function Ryu(game, x, y) {
-    this.name = "Ryu";
-    this.velocity = { x: 200, y: 50 };
+Jump is buggy right now. Fix is coming thou.
+*/
 
-    //this.actualWidth = 50;
-    //this.actualHeight = 90;
 
-    this.punchFrames = [new Frame(5, 170, 50, 100), new Frame(58, 170, 72, 100)];
-    this.punchFrames2 = [new Frame(5, 170, 50, 100), new Frame(58, 170, 72, 100)];
-    this.punchFrames3 = [new Frame(434, 170, 53, 100), new Frame(490, 170, 59, 100), new Frame(554, 170, 75, 100), new Frame(490, 170, 59, 100), new Frame(434, 170, 53, 100)];
+/*Animation(spriteSheet, startX, startY, frameWidth, frameHeight, frameDuration,
+	frames, loop, Flipped, saveLast, readyFrames)*/
+/*
+	For Flipped: startX = OverallSpriteWidth - regularStartX - (frameWidth * frames).
+*/
+function Ken(game, x, y) {
 
-    this.kickFrames = [new Frame(145, 315, 50, 90), new Frame(5, 315, 58 , 90), new Frame(75, 315, 60 , 90), new Frame(5, 315, 58 , 90), new Frame(145, 315, 50, 90)];
-    this.kickFrames2 = [new Frame(145, 315, 50, 90), new Frame(5, 315, 58 , 90), new Frame(75, 315, 60 , 90), new Frame(5, 315, 58 , 90), new Frame(145, 315, 50, 90)];
+	this.name = "Ken";
+	this.velocity = { x: 200, y: 50 };
+
+    this.actualWidth = 50;
+    this.actualHeight = 82;
+
+	/*
+	This are the ready frames for some animations. Some animations have different frame width
+	for each frame, so it was easier to use the array of frames for each animation.
+	*/
+	this.punchFrames = [new Frame(0, 120, 50, 92), new Frame(50, 120, 64, 92), new Frame(0, 120, 50, 92)];
+    this.punchFrames2 = [new Frame(0, 120, 50, 92), new Frame(50, 120, 64, 92), new Frame(0, 120, 50, 92)];
+    this.punchFrames3 = [new Frame(167, 120, 50, 92), new Frame(215, 120, 55, 92), new Frame(273, 120, 77, 92), new Frame(215, 120, 55, 92), new Frame(167, 120, 53, 92)];
+
+    this.kickFrames = [new Frame(0, 250, 53, 93), new Frame(55, 250, 74, 93), new Frame(0, 250, 53, 93)];
+    this.kickFrames2 = [new Frame(0, 250, 53, 93), new Frame(55, 250, 74, 93), new Frame(0, 250, 53, 93)];
 
     // these frames are not used
     this.jumpKickFrames = [new Frame(1051, 908, 53, 128), new Frame(1108, 908, 86, 128),
@@ -22,67 +33,73 @@ function Ryu(game, x, y) {
                             new Frame(1108, 908, 86, 128),new Frame(1108, 908, 86, 128),
                             new Frame(1108, 908, 86, 128),new Frame(1108, 908, 86, 128)];
 
-    this.uppercutFrames = [new Frame(760, 618, 62, 120), new Frame(835, 618, 58, 120)];
+    this.uppercutFrames = [new Frame(400, 364, 49, 107), new Frame(448, 364, 56, 107), new Frame(504, 364, 52, 107)];
 
-    this.blockFrames = [new Frame(344, 641, 45, 90)];
+    this.blockFrames = [new Frame(1209, 12, 50, 85)];
 
-    this.jumpFrames = [new Frame(65, 468, 50, 100), new Frame(135, 415, 50 , 80), new Frame(195, 440, 50, 100)];
+    this.jumpFrames = [new Frame(497, 12, 43, 90), new Frame(540, 12, 38, 90), new Frame(577, 12, 38, 90), new Frame(540, 12, 38, 90), new Frame(497, 12, 43, 90)];
 
-    this.knockBackFrames = [new Frame(396, 1614, 58, 100), new Frame(464, 1614, 70, 100), new Frame(594, 1614, 84, 100), new Frame(680, 1614, 84, 100)];
+    this.knockBackFrames = [new Frame(506, 776, 55, 87), new Frame(613, 776, 78, 87), new Frame(691, 776, 81, 87)];
 
-    this.idleRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 163, 40, 50, 100, 0.15, 4, true, false, false, null);
-    this.idleLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 1937, 40, 50, 100, 0.15, 4, true, true, false, null);
+    this.idleAnimation = new Animation(AM.getAsset("./img/Ken.png"), 0, 13, 51, 89, 0.15, 4, true, false, false, null);
+    this.idleLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 1394, 13, 51, 89, 0.15, 4, true, true, false, null);
 
-    this.moveRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 48, 646, 49, 86, 0.15, 4, true, true, false, null);
-    this.moveLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 2056, 646, 49, 86, 0.15, 4, true, true, false, null);
+    this.moveAnimation = new Animation(AM.getAsset("./img/Ken.png"), 202, 13, 47, 89, 0.15, 5, true, true, false, null);
+    this.moveLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 1161, 13, 47, 89, 0.15, 5, true, true, false, null);
 
-    this.crouchRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 549, 642, 50, 100, 0.15, 1, true,  false, false, null);
-    this.crouchLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 1701, 642,  50, 100, 0.15, 1, true,  true, false, null);
+    this.crouchRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 5, 388, 50, 90, 0.15, 1, true,  false, false, null);
+    this.crouchLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 1543, 388,  50, 90, 0.15, 1, true,  true, false, null);
 
-    this.punchRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 5, 160, 50, 100, 0.15, this.punchFrames.length, false, false, false, this.punchFrames)
-    this.punchLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 5, 160, 50, 100, 0.15, this.punchFrames.length, false, true, false, this.punchFrames);
+    this.punchRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 0, 120, 50, 100, 0.15, this.punchFrames.length, false, false, false, this.punchFrames)
+    this.punchLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 0, 120, 50, 100, 0.15, this.punchFrames.length, false, true, false, this.punchFrames);
 
-    this.punchRight2Animation = new Animation(AM.getAsset("./img/Ryu.png"), 5, 160, 50, 100, 0.15, this.punchFrames2.length, false, false, false, this.punchFrames2);
-    this.punchLeft2Animation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 5, 160, 50, 100, 0.15, this.punchFrames2.length, false, true, false, this.punchFrames2);
+    this.punchRight2Animation = new Animation(AM.getAsset("./img/Ken.png"), 5, 160, 50, 100, 0.15, this.punchFrames2.length, false, false, false, this.punchFrames2);
+    this.punchLeft2Animation = new Animation(AM.getAsset("./img/KenFlipped.png"), 5, 160, 50, 100, 0.15, this.punchFrames2.length, false, true, false, this.punchFrames2);
 
-    this.punchRight3Animation = new Animation(AM.getAsset("./img/Ryu.png"), 434, 170, 53, 100, 0.15, this.punchFrames3.length, false, false, false, this.punchFrames3);
-    this.punchLeft3Animation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 434, 170, 53, 100, 0.15, this.punchFrames3.length, false, true, false, this.punchFrames3);
+    this.punchRight3Animation = new Animation(AM.getAsset("./img/Ken.png"), 434, 170, 53, 100, 0.15, this.punchFrames3.length, false, false, false, this.punchFrames3);
+    this.punchLeft3Animation = new Animation(AM.getAsset("./img/KenFlipped.png"), 434, 170, 53, 100, 0.15, this.punchFrames3.length, false, true, false, this.punchFrames3);
 
-    this.kickRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 145, 315, 50, 100, 0.15, this.kickFrames.length, false, false, false, this.kickFrames);
-    this.kickLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 145, 315, 50, 100, 0.15, this.kickFrames.length, false, true, false, this.kickFrames);
+    this.kickRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 145, 315, 50, 100, 0.15, this.kickFrames.length, false, false, false, this.kickFrames);
+    this.kickLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 145, 315, 50, 100, 0.15, this.kickFrames.length, false, true, false, this.kickFrames);
 
-    this.kickRight2Animation = new Animation(AM.getAsset("./img/Ryu.png"), 145, 315, 50, 100, 0.15, this.kickFrames2.length, false, false, false, this.kickFrames2);
-    this.kickLeft2Animation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 145, 315, 50, 100, 0.15, this.kickFrames2.length, false, true, false, this.kickFrames2);
+    this.kickRight2Animation = new Animation(AM.getAsset("./img/Ken.png"), 145, 315, 50, 100, 0.15, this.kickFrames2.length, false, false, false, this.kickFrames2);
+    this.kickLeft2Animation = new Animation(AM.getAsset("./img/KenFlipped.png"), 145, 315, 50, 100, 0.15, this.kickFrames2.length, false, true, false, this.kickFrames2);
 
-    this.blockRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 345, 647, 45, 85, 0.15, this.blockFrames.length, false, false, true, this.blockFrames);
-    this.blockLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 345, 647, 45, 85, 0.15, this.blockFrames.length, false, true, false, this.blockFrames);
+    this.blockRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 345, 647, 45, 85, 0.15, this.blockFrames.length, false, false, true, this.blockFrames);
+    this.blockLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 345, 647, 45, 85, 0.15, this.blockFrames.length, false, true, false, this.blockFrames);
 
-    this.blockCrouchRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 395, 640, 45, 90, 0.07, 1, false, false, true, null);
-    this.blockCrouchLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 1705, 640, 45, 90, 0.07, 1, false, true, true, null);
+    this.blockCrouchRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 395, 640, 45, 90, 0.07, 1, false, false, true, null);
+    this.blockCrouchLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 1705, 640, 45, 90, 0.07, 1, false, true, true, null);
 
-    this.jumpRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 195, 440, 50, 100, 0.3, this.jumpFrames.length, false, false, false, this.jumpFrames);
-    this.jumpLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 195, 440, 50, 100, 0.3, this.jumpFrames.length, false, true, false, this.jumpFrames);
+    this.jumpRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 195, 440, 50, 100, 0.15, this.jumpFrames.length, false, false, false, this.jumpFrames);
+    this.jumpLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 195, 440, 50, 100, 0.15, this.jumpFrames.length, false, true, false, this.jumpFrames);
 
-    this.jumpKickRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"),
+    this.jumpKickRightAnimation = new Animation(AM.getAsset("./img/Ken.png"),
          1051, 908, 53, 108, 0.1, this.jumpKickFrames.length, false, false, true, this.jumpKickFrames);
 
-    this.jumpKickLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"),
+    this.jumpKickLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"),
          1051, 908, 53, 108, 0.1, this.jumpKickFrames.length, false, true, true, this.jumpKickFrames);
 
-    this.uppercutRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 14, 907, 58, 128, 0.2, this.uppercutFrames.length, false, false, false, this.uppercutFrames);
-    this.uppercutLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 14, 907, 58, 128, 0.2, this.uppercutFrames.length, false, true, false, this.uppercutFrames);
+    this.uppercutRightAnimation = new Animation(AM.getAsset("./img/Ken.png"),
+       14, 907, 58, 128, 0.1, this.uppercutFrames.length, false, false, false, this.uppercutFrames);
 
-    this.knockBackRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 65, 468, 50, 100, 0.10, this.knockBackFrames.length, false, false, false, this.knockBackFrames);
-    this.knockBackLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 65, 468, 50, 100, 0.10, this.knockBackFrames.length, false, true, false, this.knockBackFrames);
+    this.uppercutLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"),
+        14, 907, 58, 128, 0.1, this.uppercutFrames.length, false, true, false, this.uppercutFrames);
 
-    this.attackedRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 34, 1620, 55, 85, 0.2, 2, false, false, false, null);
-    this.attackedLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 2156, 1620, 55, 85, 0.2, 2, false, true, false, null);
+    this.knockBackRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 65, 468, 50, 100, 0.10, this.knockBackFrames.length, false, false, false, this.knockBackFrames);
+    this.knockBackLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 65, 468, 50, 100, 0.10, this.knockBackFrames.length, false, true, false, this.knockBackFrames);
 
-    this.currentAnimation = this.idleRightAnimation;
-    //Ryu's movement speed.
+    this.attackedRightAnimation = new Animation(AM.getAsset("./img/Ken.png"), 209, 776, 58, 88, 0.14, 3, false, false, false, null);
+    this.attackedLeftAnimation = new Animation(AM.getAsset("./img/KenFlipped.png"), 1215, 776, 58, 88, 0.14, 3, false, true, false, null);
+
+
+
+
+	this.currentAnimation = this.idleAnimation;
+    //Ken's movement speed.
     this.speed = 5;
     
-    //Ryu's states.
+    //Ken's states.
     this.movingRight = false;
     this.movingLeft = false;
     this.idling = true;
@@ -125,8 +142,8 @@ function Ryu(game, x, y) {
     this.attackDamageMap.set(this.kicking, 0.4);
     this.attackDamageMap.set(this.kicking2, 0.2);
 
-    this.animationCollection = [this.idleRightAnimation, this.idleLeftAnimation,
-            this.moveRightAnimation, this.moveLeftAnimation, this.crouchRightAnimation,
+    this.animationCollection = [this.idleAnimation, this.idleLeftAnimation,
+            this.moveAnimation, this.moveLeftAnimation, this.crouchRightAnimation,
             this.crouchLeftAnimation, this.blockRightAnimation,
             this.blockLeftAnimation, this.blockCrouchRightAnimation,
             this.blockCrouchLeftAnimation, this.punchRightAnimation,
@@ -141,25 +158,24 @@ function Ryu(game, x, y) {
     for (var i = 0; i < this.animationCollection.length; i++) {
         //console.log(i);
         this.animationCollection[i].actualWidth = 50;
-        this.animationCollection[i].actualHeight = 90;
+        this.animationCollection[i].actualHeight = 82;
     }
-    this.healthBar = new HealthBar(100, this.game, 20, 100);
+    //this.healthBar = new HealthBar(100, this.game, 20, 100);
 
     this.xView = x;
     this.yView = y;
 
     Entity.call(this, game, x, y);
 }
-
 var attack = false;
 
-Ryu.prototype = new Entity();
-Ryu.prototype.constructor = Ryu;
+Ken.prototype = new Entity();
+Ken.prototype.constructor = Ken;
 
-//Updates Ryu's state (frame).
+//Updates Ken's state (frame).
 /*Current bugs (features) :
 1) If you press crouch and punch while jumping, then
-Ryu will uppercut when lands.
+Ken will uppercut when lands.
 */
 var count = 0;
 var count2 = 0
@@ -168,7 +184,7 @@ var count2 = 0
 Checks gameEngine states and changes Character's states
 depending on them.
 */
-Ryu.prototype.checkGameStates = function() {
+Ken.prototype.checkGameStates = function() {
     if (!this.game.crouch) {
             this.crouchRightAnimation.elapsedTime = 0;
             this.crouchLeftAnimation.elapsedTime = 0;
@@ -315,7 +331,7 @@ Ryu.prototype.checkGameStates = function() {
 }
 
 /*Check my states and update animations.*/
-Ryu.prototype.checkMyStates = function() {
+Ken.prototype.checkMyStates = function() {
     if (this.gettingAttacked) {
         if (!this.blocking) {
             this.gettingAttackedCounter++;
@@ -545,7 +561,7 @@ Ryu.prototype.checkMyStates = function() {
                     this.game.jumpKick = null;
                     this.game.jump = null;
                 }
-                //console.log("Ryus move right " +  this.movingRight);
+                //console.log("Kens move right " +  this.movingRight);
                 if (this.movingRight && this.x < 3720) {
                     this.x += this.speed;
                 }
@@ -587,7 +603,7 @@ Ryu.prototype.checkMyStates = function() {
         } else  if (this.movingRight) {
             //IF THIS IS NOT GETTING ATTACKED THE DO IT
             if (!this.gettingAttacked) {
-                this.currentAnimation = this.moveRightAnimation;
+                this.currentAnimation = this.moveAnimation;
 
                 if ((this.x < 3720)) {
                     this.x += this.speed;
@@ -628,7 +644,7 @@ Ryu.prototype.checkMyStates = function() {
             }
         } else  {
             if (this.facing === "R") {
-                this.currentAnimation = this.idleRightAnimation;
+                this.currentAnimation = this.idleAnimation;
             } else {
                 this.currentAnimation = this.idleLeftAnimation;
             }
@@ -636,11 +652,11 @@ Ryu.prototype.checkMyStates = function() {
 }
 
 
-Ryu.prototype.update = function() {
+Ken.prototype.update = function() {
 
-    // if (this.healthBar.hp <= 0) {
-    //     this.removeFromWorld = true;
-    // }
+    //if (this.healthBar.hp <= 0) {
+    //    this.removeFromWorld = true;
+    //}
 
      
 
@@ -672,6 +688,7 @@ Ryu.prototype.update = function() {
     //console.log("my y is: " + this.currentAnimation.getY(this.y, this.scaleBy) + 
             //"\n my x is: " + this.x + "\n myHeight is: " + this.currentAnimation.getFrameHeight() * this.scaleBy + 
         //"\n myWidth is:  " + this.currentAnimation.getFrameWidth() * this.scaleBy);
+       // console.log(this.currentAnimation);
         var currentBox = new Box(this.currentAnimation.getX(this.x, this.scaleBy),
             this.currentAnimation.getY(this.y, this.scaleBy),
             this.currentAnimation.getFrameWidth() * this.scaleBy,
@@ -875,7 +892,7 @@ Ryu.prototype.update = function() {
                                 ent.removeFromWorld = true;
                             }
                             if(this.healthBar.hp <= 0) {
-                                ent.currentAnimation = ent.idleRightAnimation;
+                                ent.currentAnimation = ent.idleAnimation;
                             }
                         } else {
                             
@@ -893,7 +910,7 @@ Ryu.prototype.update = function() {
                             }   
                         }
                     }
-                    // Ryu.prototype.isAttacking = function() {
+                    // Ken.prototype.isAttacking = function() {
                     //     return (this.punching || this.punching2 || this.punching3
                     //         || this.kicking || this.kicking2 || this.uppercutting
                     //         || this.jumpKicking);
@@ -916,7 +933,7 @@ Ryu.prototype.update = function() {
                     //this.x += this.velocity.x * this.game.clockTick;
                     // console.log("Box " +ent.currentBox);
                     // console.log("Goku " +this.x);
-                    // console.log("Ryu "+ ent.x);
+                    // console.log("Ken "+ ent.x);
                     if(this.x < ent.x && !(Math.abs(this.x - ent.x) < range)) {
                         ent.facing = "L";
                         ent.currentAnimation = ent.moveLeftAnimation;
@@ -924,7 +941,7 @@ Ryu.prototype.update = function() {
                     }
                     else if(this.x > ent.x && !(Math.abs(this.x - ent.x) < range-10)) {
                         ent.facing = "R";
-                        ent.currentAnimation = ent.moveRightAnimation
+                        ent.currentAnimation = ent.moveAnimation;
                         ent.x += ent.speed;
                     }
                     if(this.game.kick && this.currentAnimation.isDone()) {
@@ -940,27 +957,7 @@ Ryu.prototype.update = function() {
             
             }
         }
-        // if (ent !== this && ent.currentBox && this.collide(ent)) {
-        //  console.log("They collide!");
-
-        //  if (this.isAttacking()) {
-        //      if (this.facing === "R" && this.isToTheLeftOf(ent)) {
-        //          if (!ent.blocking) {
-        //              this.attackHandler(ent, 1);
-        //          } else {
-        //              this.attackHandler(ent, 0.3);
-        //          }
-        //          ent.facing = "L";
-        //      } else if (this.facing === "L" && !this.isToTheLeftOf(ent)) {
-        //          if (!ent.blocking) {
-        //              this.attackHandler(ent, 1);
-        //          } else {
-        //              this.attackHandler(ent, 0.3);
-        //          }
-        //          ent.facing = "R";
-        //      }
-        //  }
-        // }
+        
     }
 
     if (!this.isBot) {
@@ -969,21 +966,21 @@ Ryu.prototype.update = function() {
     Entity.prototype.update.call(this);
 }
 
-Ryu.prototype.collide = function(other) {
+Ken.prototype.collide = function(other) {
     return this.currentBox.collide(other.currentBox);
 }
 
-Ryu.prototype.isAttacking = function() {
+Ken.prototype.isAttacking = function() {
     return (this.punching || this.punching2 || this.punching3
         || this.kicking || this.kicking2 || this.uppercutting
         || this.jumpKicking);
 }
 
-Ryu.prototype.isToTheLeftOf = function(other) {
+Ken.prototype.isToTheLeftOf = function(other) {
     return (this.x < other.x);
 }
 
-Ryu.prototype.getAttackType = function() {
+Ken.prototype.getAttackType = function() {
     if (this.punching) {
         return this.punching;
     } else if (this.punching2) {
@@ -999,7 +996,7 @@ Ryu.prototype.getAttackType = function() {
     }
 }
 
-Ryu.prototype.attackHandler = function(other, mult) {
+Ken.prototype.attackHandler = function(other, mult) {
     if (!this.isBot) {
         mult *= 4;
     } else {
@@ -1030,7 +1027,7 @@ Ryu.prototype.attackHandler = function(other, mult) {
 }
 
 //Draws current frame of current animation.
-Ryu.prototype.draw = function(ctx, xView, yView) {
+Ken.prototype.draw = function(ctx, xView, yView) {
     if (!this.isBot) {
         //this.healthBar.draw(ctx);
         this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);

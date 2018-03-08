@@ -237,6 +237,9 @@ HealthBar.prototype.draw = function(ctx) {
 
 AM.queueDownload("./img/Scorpion.png");
 AM.queueDownload("./img/ScorpionReverse.png");
+AM.queueDownload("./img/Ken.png");
+AM.queueDownload("./img/KenFlipped.png");
+AM.queueDownload("./img/GameOver.png");
 //AM.queueDownload("./img/CourtyardBackground.jpg");
 AM.queueDownload("./img/CourtyardBackgroundX3.png");
 AM.queueDownload("./img/GokuSS.png");
@@ -260,7 +263,10 @@ AM.downloadAll(function () {
 	camera.follow(scorpion, canvas.width/2, canvas.height/2);
 	var scorpionBot = new Scorpion(gameEngine, 1500, 420);
 	var scorpionBot2 = new Scorpion(gameEngine, 3000, 420);
-	var subzero = new Subzero(gameEngine, 1000, 420);
+	var subzero = new Subzero(gameEngine, 1900, 420);
+	var ken = new Ken(gameEngine, 1500, 420);
+
+	ken.isBot = true;
 	subzero.isBot = true;
 	scorpionBot.isBot = true;
 	scorpionBot.speed = 2;
@@ -270,8 +276,10 @@ AM.downloadAll(function () {
 	scorpionBot2.healthBar.y = 50;
 	subzero.speed = 3;
 	scorpionBot2.speed = 3.76;
-	subzero.healthBar.x = 600;
-	subzero.healthBar.y = 80;
+	subzero.healthBar.x = 740;
+	subzero.healthBar.y = 20;
+
+
 	
 	// $('.enter_link').click(function() { 
     //     $(this).parent().fadeOut(500);
@@ -279,12 +287,13 @@ AM.downloadAll(function () {
 	gameEngine.addEntity(bg);
 	gameEngine.addEntity(scorpion);
 	gameEngine.addEntity(camera);
-	gameEngine.addEntity(subzero);
+	//gameEngine.addEntity(scorpionBot);
 
 	//gameEngine.addEntity(scorpionBot2);
 	// gameEngine.addEntity(gokku);
 	//gameEngine.addEntity(subzero);
 	//gameEngine.addEntity(ryu);
+	gameEngine.addEntity(ken);
 
 	gameEngine.init(ctx);
 	gameEngine.start();

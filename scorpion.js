@@ -55,6 +55,10 @@ function Scorpion(game, x, y) {
 							new Frame(175, 1210, 62, 107), new Frame(239, 1210, 55, 107),
 							new Frame(294, 1231, 74, 86), new Frame(372, 1271, 95, 46)];
 
+	this.dyingFrames = [new Frame(505, 1202, 64, 111), new Frame(577, 1263, 62, 54),
+						new Frame(648, 1232, 62, 84), new Frame(715, 1244, 52, 72),
+						new Frame(775, 1273, 71, 42), new Frame(848, 1258, 71, 58)];
+
 	this.knockBackRightAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		15, 1192, 77, 123, 0.10, this.knockBackFrames.length, false, false, false, this.knockBackFrames);
 
@@ -68,6 +72,8 @@ function Scorpion(game, x, y) {
 	this.actualWidth = 58;
 
 	this.actualHeight = 128;
+
+	this.range = this.actualWidth * this.scaleBy;
 	
 	this.idleAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
 		88, 23, 58, 128, 0.10, 7, true, false, false, null);
@@ -154,7 +160,8 @@ function Scorpion(game, x, y) {
 	this.attackedLeftAnimation = new Animation(AM.getAsset("./img/ScorpionReverse.png"),
 		1691, 1053, 58, 128, 0.16, 2, false, true, false, null);
 
-
+	this.dyingAnimation = new Animation(AM.getAsset("./img/Scorpion.png"),
+		505, 1202, 64, 111, 0.10, this.dyingFrames.length, false, false, false, this.dyingFrames);
 
 
 	this.currentAnimation = this.idleAnimation;
@@ -214,6 +221,8 @@ function Scorpion(game, x, y) {
 
 	this.xView = x;
 	this.yView = y;
+
+	this.gameover = false;
 
 	this.botBlockingCounter = 0;
 
@@ -394,14 +403,11 @@ Scorpion.prototype.checkMyStates = function() {
 		if (!this.blocking) {
 			this.gettingAttackedCounter++;
 		}
-
-		//this.jumping = false;
 		this.punching = false;
 		this.punching2 = false;
 		this.punching3 = false;
 		this.kicking = false;
 		this.kicking2 = false;
-		//this.crouching = false;
 		if (this.jumping) {
 			this.currentAnimation = this.facing === "L" ? this.attackedLeftAnimation : this.attackedRightAnimation;
 			this.jumping = false;
@@ -409,52 +415,47 @@ Scorpion.prototype.checkMyStates = function() {
 			if (this.currentAnimation.isDone()) {
 	 			this.currentAnimation.elapsedTime = 0;
 	 			this.gettingAttacked = false;
-	 			//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
 	 		}
 		} else if (this.blocking && !this.knockingBack) {
-				if (this.facing === "R") {
-					if (this.crouching) {
-						this.currentAnimation = this.blockCrouchRightAnimation;
-					} else {
-						this.currentAnimation = this.blockRightAnimation;
-					}
+			if (this.facing === "R") {
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchRightAnimation;
 				} else {
-					if (this.crouching) {
-						this.currentAnimation = this.blockCrouchLeftAnimation;
-					} else {
-						this.currentAnimation = this.blockLeftAnimation;
-					}
+					this.currentAnimation = this.blockRightAnimation;
 				}
 			} else {
-				if (this.gettingAttackedCounter >= 100) {
-					
-					this.currentAnimation = this.facing === "L" ? this.knockBackLeftAnimation : this.knockBackRightAnimation;
-					this.knockingBack = true;
-					if (this.x > 10 && this.x < 3700) {
-						this.x += this.facing === 'L' ? 5 : -5;
-					}
-					if (this.currentAnimation.isDone()) {
-						this.gettingAttacked = false;
-						this.knockingBack = false;
-						this.gettingAttackedCounter = 0;
-						this.knockBackLeftAnimation.elapsedTime = 0;
-						this.knockBackRightAnimation.elapsedTime = 0;
-					}
+				if (this.crouching) {
+					this.currentAnimation = this.blockCrouchLeftAnimation;
 				} else {
-	 				this.currentAnimation = this.facing === "L" ? this.attackedLeftAnimation : this.attackedRightAnimation;
+					this.currentAnimation = this.blockLeftAnimation;
+				}
+			}
+		} else {
+			if (this.gettingAttackedCounter >= 100) {	
+				this.currentAnimation = this.facing === "L" ? this.knockBackLeftAnimation : this.knockBackRightAnimation;
+				this.knockingBack = true;
+				if (this.x > 10 && this.x < 3700) {
+					this.x += this.facing === 'L' ? 5 : -5;
+				}
+				if (this.currentAnimation.isDone()) {
+					this.gettingAttacked = false;
+					this.knockingBack = false;
+					this.gettingAttackedCounter = 0;
+					this.knockBackLeftAnimation.elapsedTime = 0;
+					this.knockBackRightAnimation.elapsedTime = 0;
+				}
+			} else {
+	 			this.currentAnimation = this.facing === "L" ? this.attackedLeftAnimation : this.attackedRightAnimation;
 	 				if (this.currentAnimation.isDone()) {
 	 					this.currentAnimation.elapsedTime = 0;
 	 					this.gettingAttacked = false;
-	 					//this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
 	 				}
 	 			}
 	 		}	
 		} else  if (this.blocking) {
 			if (this.facing === "R") {
 				if (this.crouching) {
-
 					this.currentAnimation = this.blockCrouchRightAnimation;
-					
 				} else {
 					this.currentAnimation = this.blockRightAnimation;
 				}
@@ -600,26 +601,17 @@ Scorpion.prototype.checkMyStates = function() {
 				}
 			}
 		} else if (this.jumping) {
-			//console.log("this.jumping is true");
 			if (this.facing === "R") {
-				
-			//	if (this.jumpKicking) {
-					//this.jumpRightAnimation.readyFrames = this.jumpKickFrames;
-				//} else {
 					this.currentAnimation = this.jumpRightAnimation;
 					jumpsnd.play();
-				//}
-
 				if (this.currentAnimation.isDone()) {
 					this.jumpRightAnimation.readyFrames = null;
 					this.jumpKickRightAnimation.elapsedTime = 0;
 					this.jumpRightAnimation.elapsedTime = 0;
 					this.jumping = false;
-					//this.jumpKicking = false;
 					this.game.jumpKick = null;
 					this.game.jump = null;
 				}
-				//console.log("Scorpions move right " +  this.movingRight);
 				if (this.movingRight && this.x < 3720) {
 					this.x += this.speed;
 				}
@@ -628,17 +620,12 @@ Scorpion.prototype.checkMyStates = function() {
 					this.xView += this.speed;
 				}
 			} else if (this.facing === "L") {
-				//if (this.jumpKicking) {
-					//this.jumpLeftAnimation.readyFrames = this.jumpKickFrames;
-				//} else {
-					this.currentAnimation = this.jumpLeftAnimation;
-					jumpsnd.play();
-				//}
+				this.currentAnimation = this.jumpLeftAnimation;
+				jumpsnd.play();
 				if (this.currentAnimation.isDone()) {
 					this.jumpLeftAnimation.readyFrames = null;
 					this.jumpLeftAnimation.elapsedTime = 0;
 					this.jumpKickLeftAnimation.elapsedTime = 0;
-					//this.jumpKicking = false;
 					this.jumping = false;
 					this.game.jumpKick = null;
 					this.game.jump = null;
@@ -659,27 +646,21 @@ Scorpion.prototype.checkMyStates = function() {
 			var height = totalHeight * (-4 * (jumpDistance * jumpDistance - jumpDistance));
 			this.y = 420 - height;
 		} else  if (this.movingRight) {
-			//IF THIS IS NOT GETTING ATTACKED THE DO IT
 			if (!this.gettingAttacked) {
 				this.currentAnimation = this.moveAnimation;
-
 				if ((this.x < 3720)) {
 					this.x += this.speed;
 				}	
-
 				if ((this.x < 640) || (this.x > 3200 && this.x < 3720)) {
 					this.xView += this.speed;
 				}
 			}
-			
 		} else if (this.movingLeft) {
 			if (!this.gettingAttacked) {
 				this.currentAnimation = this.moveLeftAnimation;
-
 				if (this.x >= 0) {
 					this.x += -1 * (this.speed);
 				}
-
 				if ((this.x >= 0 && this.x < 640) || (this.x > 3200 && this.x < 3720)) {
 					this.xView += -1 * (this.speed);
 				}
@@ -713,43 +694,27 @@ Scorpion.prototype.checkMyStates = function() {
 Scorpion.prototype.update = function() {
 
 	if (this.healthBar.hp <= 0) {
-		this.removeFromWorld = true;
-	}
-
-	 
-
-	if (!this.isBot) {
-		
-		this.checkGameStates();
-
-		this.checkMyStates();
-		
-
-		 
-		//var heightDiff = this.boxHeight - this.currentAnimation.getFrameHeight();
-		//this.y = heightDiff === 0 ? this.y : this.y + (heightDiff * this.scaleBy);
-		//this.currentAnimation.getFrameWidth();
-		//this.currentAnimation.getFrameHeight();
-		
-		//console.log("my x is: " + this.x);
-		//console.log("myHeight is: " + this.currentAnimation.getFrameHeight());
-		//console.log("myWidth is:  " + this.currentAnimation.getFrameWidth());
-
+		this.currentAnimation = this.dyingAnimation;
+		this.healthBar.hp = 0;
+		if (this.dyingAnimation.isDone()) {
+			if (!this.gameover) {
+				this.game.addEntity(new GameOver(this.game, this.game.xView + 340, this.game.yView + 200));
+				this.gameover = true;
+			}
+			this.removeFromWorld = true;
+		}
 	} else {
-		// if (!this.gettingAttacked) {
-		// 	var next = Math.random();
-			
-		// 		this.currentAnimation = this.facing === "L" ? this.idleLeftAnimation : this.idleAnimation;
-		// }
-	}
+		if (!this.isBot) {
+			this.checkGameStates();
+			this.checkMyStates();
+		} else {
 
-	//console.log("my y is: " + this.currentAnimation.getY(this.y, this.scaleBy) + 
-			//"\n my x is: " + this.x + "\n myHeight is: " + this.currentAnimation.getFrameHeight() * this.scaleBy + 
-		//"\n myWidth is:  " + this.currentAnimation.getFrameWidth() * this.scaleBy);
+		}
+
 		var currentBox = new Box(this.currentAnimation.getX(this.x, this.scaleBy),
-			this.currentAnimation.getY(this.y, this.scaleBy),
-			this.currentAnimation.getFrameWidth() * this.scaleBy,
-			this.currentAnimation.getFrameHeight() * this.scaleBy);
+		this.currentAnimation.getY(this.y, this.scaleBy),
+		this.currentAnimation.getFrameWidth() * this.scaleBy,
+		this.currentAnimation.getFrameHeight() * this.scaleBy);
 		this.currentBox = currentBox;
 
 	//Detect collision with other entities
@@ -823,7 +788,9 @@ Scorpion.prototype.update = function() {
 					} else {
 						attack = false;
 					}
+					range = ent.actualWidth * ent.scaleBy;
 					//console.log(Math.abs(this.x - ent.x));
+					//console.log("Scorpion's x:" + this.x + ", y:" + this.y + ", Subzero's x:" + ent.x + ", y:" + ent.y);
 					if (this.x > ent.x && Math.abs(this.x - ent.x) < range) {
 						
 						count++;
@@ -900,7 +867,7 @@ Scorpion.prototype.update = function() {
 						//ent.velocity = 0;
 
 						//Player on the left
-					} if (this.x < ent.x && (Math.abs(this.x - ent.x) < range+60)) {
+					} if (this.x < ent.x && (Math.abs(this.x - ent.x) < range)) {
 						
 						if(count2 % 50 == 0) {
 							rand2 = Math.floor(Math.random() * 3);
@@ -996,7 +963,7 @@ Scorpion.prototype.update = function() {
 						ent.currentAnimation = ent.moveLeftAnimation;
 						ent.x -= ent.speed;
 					}
-					else if(this.x > ent.x && !(Math.abs(this.x - ent.x) < range-10)) {
+					else if(this.x > ent.x && !(Math.abs(this.x - ent.x) < range)) {
 						ent.facing = "R";
 						ent.currentAnimation = ent.moveAnimation
 						ent.x += ent.speed;
@@ -1039,6 +1006,7 @@ Scorpion.prototype.update = function() {
 
 	if (!this.isBot) {
 		//console.log("blocking is: " + this.blocking);
+	}
 	}
 	Entity.prototype.update.call(this);
 }

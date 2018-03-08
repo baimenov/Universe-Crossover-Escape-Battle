@@ -704,6 +704,7 @@ Subzero.prototype.checkMyStates = function() {
 Subzero.prototype.update = function() {
 	
 	if (this.healthBar.hp <= 0) {
+		this.healthBar.hp = 0;
 		this.currentAnimation = this.dyingAnimation;
 		if (this.dyingAnimation.isDone()) {
 			this.removeFromWorld = true;
@@ -734,7 +735,7 @@ Subzero.prototype.update = function() {
 		this.currentBox = currentBox;
 
 	//Detect collision with other entities
-	var range = 106
+	var range = 96;
 	if(count > 2000){
 		count = 0;
 	}
