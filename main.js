@@ -287,13 +287,13 @@ AM.downloadAll(function () {
 	gameEngine.addEntity(bg);
 	gameEngine.addEntity(scorpion);
 	gameEngine.addEntity(camera);
-	//gameEngine.addEntity(scorpionBot);
+	gameEngine.addEntity(scorpionBot);
 
 	//gameEngine.addEntity(scorpionBot2);
 	// gameEngine.addEntity(gokku);
 	//gameEngine.addEntity(subzero);
 	//gameEngine.addEntity(ryu);
-	gameEngine.addEntity(ken);
+	//gameEngine.addEntity(ken);
 
 	gameEngine.init(ctx);
 	gameEngine.start();
