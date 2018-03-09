@@ -125,6 +125,9 @@ function Ken(game, x, y) {
     this.boxWidth = 58;
     this.boxHeight = 128;
 
+    this.actualWidth = 50;
+    this.actualHeight = 92;
+
     this.gettingAttacked = false;
     this.gettingAttackedCounter = 0;
 
@@ -194,8 +197,10 @@ Ken.prototype.checkGameStates = function() {
             this.blockRightAnimation.elapsedTime = 0;
         }
         if (this.game.jump) {
-            if (!this.gettingAttacked) {
+            if (!this.gettingAttacked && !this.knockingBack) {
                 this.jumping = true;
+            } else {
+                this.game.jump = null;
             }
             this.game.block = null;
             this.blocking = false;
@@ -654,13 +659,26 @@ Ken.prototype.checkMyStates = function() {
 
 Ken.prototype.update = function() {
 
+    var enemies = 0;
+    for (var i = 0; i < this.game.entities.length; i++) {
+        if (this.game.entities[i].isBot) {
+            enemies++;
+        }
+    }
+    if (enemies <= 0) {
+        if (this.stage >= 1) {
+           // console.log("game over");
+        }
+    }
     //if (this.healthBar.hp <= 0) {
     //    this.removeFromWorld = true;
     //}
-
+    //console.log("ken updating");
      
-
-    if (!this.isBot) {
+    if (this.healthBar.hp <= 0) {
+        this.healthBar.hp = 0;
+        this.removeFromWorld = true;
+    }else if (!this.isBot) {
         
         this.checkGameStates();
 
@@ -766,6 +784,7 @@ Ken.prototype.update = function() {
                     } else {
                         attack = false;
                     }
+                    range = ent.actualWidth * ent.scaleBy;
                     //console.log(Math.abs(this.x - ent.x));
                     if (this.x > ent.x && Math.abs(this.x - ent.x) < range) {
                         
@@ -783,7 +802,7 @@ Ken.prototype.update = function() {
                         if(!this.isAttacking()){
                             
                             //console.log("Here's the random number "+ rand);
-                            //var rand = Math.floor(Math.random() * 3);
+                            
                             if(rand === 0){
                                 ent.currentAnimation = ent.kickRightAnimation;
                                 this.facing = "L";
@@ -1028,12 +1047,8 @@ Ken.prototype.attackHandler = function(other, mult) {
 
 //Draws current frame of current animation.
 Ken.prototype.draw = function(ctx, xView, yView) {
-    if (!this.isBot) {
-        //this.healthBar.draw(ctx);
+        this.healthBar.draw(ctx);
         this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-    } else {
-        //this.healthBar.draw(ctx);
-        this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-    }
+
     Entity.prototype.draw.call(this);
 }

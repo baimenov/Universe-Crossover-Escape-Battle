@@ -226,6 +226,8 @@ function Scorpion(game, x, y) {
 
 	this.botBlockingCounter = 0;
 
+	this.stage = 0;
+
 	Entity.call(this, game, x, y);
 }
 var kicksnd = new Audio("./sounds/kick.mp3");
@@ -694,12 +696,66 @@ Scorpion.prototype.checkMyStates = function() {
 
 
 Scorpion.prototype.update = function() {
+	var enemies = 0;
+	for (var i = 0; i < this.game.entities.length; i++) {
+		if (this.game.entities[i].isBot) {
+			enemies++;
+		}
+	}
+
+	//if true then go to next stage!
+	if (enemies <= 0) {
+		
+		if (this.stage === 0 || this.stage === 1) {
+			//Go to Ryu
+			for (var i = 0; i < this.game.entities.length; i++) {
+				if (this.game.entities[i] instanceof Background) {
+					this.game.entities[i].setNew(AM.getAsset("./img/StreetFighterBG.png"));
+				} else if (this.game.entities[i] instanceof Scorpion) {
+					this.game.entities[i] = new Ryu(this.game, 200, 420);
+					console.log(this.game.entities[i].healthBar.y);
+					this.game.entities[i].stage = this.stage + 1;
+					for (var j = 0; j < this.game.entities.length; j++) {
+						if (this.game.entities[j] instanceof Camera) {
+							this.game.entities[j].follow(this.game.entities[i],
+								document.getElementById("gameWorld").width/2, document.getElementById("gameWorld").height/2);
+						}
+					}
+				}
+			}
+			var kenBot = new Ken(this.game, 1100, 420);
+			kenBot.isBot = true;
+			kenBot.speed = 3;
+			kenBot.healthBar.x = 740;
+			kenBot.healthBar.y = 20;
+			kenBot.healthBar.hp = 70;
+			var kenBot2 = new Ken(this.game, 4500, 420);
+			kenBot2.isBot = true;
+			kenBot2.speed = 3;
+			kenBot2.healthBar.x = 740;
+			kenBot2.healthBar.y = 50;
+			kenBot2.healthBar.hp = 70;
+			var kenBot3 = new Ken(this.game, 8300, 420);
+			kenBot3.isBot = true;
+			kenBot3.speed = 3;
+			kenBot3.healthBar.x = 740;
+			kenBot3.healthBar.y = 80;
+			kenBot3.healthBar.hp = 70;
+			this.game.addEntity(kenBot);
+			this.game.addEntity(kenBot2);
+			this.game.addEntity(kenBot3);
+		} else if (this.stage === 2) {
+			//Game over .
+			console.log("game over");
+		}
+		
+	}
 
 	if (this.healthBar.hp <= 0) {
 		this.currentAnimation = this.dyingAnimation;
 		this.healthBar.hp = 0;
 		if (this.dyingAnimation.isDone()) {
-			if (!this.gameover) {
+			if (!this.gameover && !this.isBot) {
 				this.game.addEntity(new GameOver(this.game, this.game.xView + 340, this.game.yView + 200));
 				this.gameover = true;
 			}
@@ -1075,12 +1131,7 @@ Scorpion.prototype.attackHandler = function(other, mult) {
 
 //Draws current frame of current animation.
 Scorpion.prototype.draw = function(ctx, xView, yView) {
-	if (!this.isBot) {
 		this.healthBar.draw(ctx);
 		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-	} else {
-		this.healthBar.draw(ctx);
-		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-	}
 	Entity.prototype.draw.call(this);
 }

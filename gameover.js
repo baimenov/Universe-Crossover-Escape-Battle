@@ -22,7 +22,7 @@ GameOver.prototype.update = function(){
 
 GameOver.prototype.draw = function(ctx, xView, yView) {
 	if (this.appear) {
-		console.log("drawing");
+		//console.log("drawing");
 		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
 	}
 }

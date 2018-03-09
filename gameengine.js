@@ -75,6 +75,8 @@ GameEngine.prototype.init = function (ctx) {
 
     this.uppercut = null;
 
+    this.charge = null;
+
     //Just a fun easter egg field
     this.ultraSpeed = null;
     console.log('game initialized');
@@ -110,7 +112,7 @@ GameEngine.prototype.startInput = function() {
             } else {
                 that.ultraSpeed = true;
             }
-        } else if (e.keyCode === 103) {
+        } else if (e.keyCode === 103 || e.keyCode === 82) {
             if (that.punch2) {
                 that.punch3 = true;
             } else if (that.punch) {
@@ -121,7 +123,7 @@ GameEngine.prototype.startInput = function() {
             } else if (that.crouch && !that.jump && !that.kick && !that.kick2) {
                 that.uppercut = true;
             }
-        } else if (e.keyCode === 105) {
+        } else if (e.keyCode === 105 || e.keyCode === 89) {
             if (that.kick) {
                 that.kick2 = true;
             }else if (!that.punch && !that.punch2 && !that.punch3 && !that.kick2
@@ -130,19 +132,18 @@ GameEngine.prototype.startInput = function() {
             } else if (that.jump) {
                 that.jumpKick = true;
             }
-        } else if (e.keyCode === 96) {
+        } else if (e.keyCode === 96 || e.keyCode === 32) {
             that.block = true;
         } else if (e.keyCode === 38) {
             if (!that.punch && !that.punch2 && !that.punch3 && !that.kick
                 && !that.kick2) {
                 that.jump = true;
             }
+        } else if (e.keyCode === 67) {
+            that.charge = true;
         }
         //Gokku's (Unicorn's)
-        if (String.fromCharCode(e.which) === ' ') that.space = true;
-        if (String.fromCharCode(e.which) === 'K') that.kick = true;
-        if (String.fromCharCode(e.which) === 'A') that.left = true;
-        if (String.fromCharCode(e.which) === 'D') that.right = true;
+        
         e.preventDefault();
     }, false);
 
@@ -154,11 +155,13 @@ GameEngine.prototype.startInput = function() {
             that.moveLeft = null;
         } else if (e.keyCode === 40) {
             that.crouch = null;
-        } else if (e.keyCode === 96) {
+        } else if (e.keyCode === 96 || e.keyCode === 32) {
             that.block = null;
+        } else if (e.keyCode === 67) {
+            that.charge = null;
         }
         //Gokku's (unicorn's)
-        if (String.fromCharCode(e.which) === 'A') that.left = null;
+        
         e.preventDefault();
     }, false);
 

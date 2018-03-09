@@ -1,0 +1,3 @@
+Sco -> Ryu -> Gok
+Ryu -> Gok -> Sco
+Gok -> Sco -> Ryu

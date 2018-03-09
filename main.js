@@ -56,6 +56,10 @@ Background.prototype.update = function() {
 
 }
 
+Background.prototype.setNew = function(img) {
+	this.spritesheet = img;
+}
+
 
 /* KHOA:
 	wrapper class for side scrolling background
@@ -242,36 +246,103 @@ AM.queueDownload("./img/KenFlipped.png");
 AM.queueDownload("./img/GameOver.png");
 //AM.queueDownload("./img/CourtyardBackground.jpg");
 AM.queueDownload("./img/CourtyardBackgroundX3.png");
-AM.queueDownload("./img/GokuSS.png");
+AM.queueDownload("./img/StreetFighterBG.png");
 AM.queueDownload("./img/Ryu.png");
 AM.queueDownload("./img/RyuFlipped.png");
 AM.queueDownload("./img/Subzero.png");
 AM.queueDownload("./img/SubzeroReverse.png");
 
+AM.queueDownload("./img/GokuSS.png");
+AM.queueDownload("./img/GokuSSReverse.png");
+AM.queueDownload("./img/Frieza.png");
+AM.queueDownload("./img/FriezaReverse.png");
+AM.queueDownload("./img/Saitama.png");
+AM.queueDownload("./img/SaitamaReverse.png");
+AM.queueDownload("./img/namekbgr.png");
+
+var rand = 0;
+
 AM.downloadAll(function () {
 	var canvas = document.getElementById("gameWorld");
 	var ctx = canvas.getContext("2d");
 
+	var stageCount = 0;
+
 	var gameEngine = new GameEngine();
 	gameEngine.Camera = Camera;
 	gameEngine.Rectangle = Rectangle;
-	var bg = new Background(gameEngine, AM.getAsset("./img/CourtyardBackgroundX3.png"));
 	var camera = new Camera(0, 0, canvas.width, canvas.height, 3840, 720, gameEngine);
-	var gokku = new Gokku(gameEngine);
-	var ryu = new Ryu(gameEngine);
-	var scorpion = new Scorpion(gameEngine, 200, 420);
-	camera.follow(scorpion, canvas.width/2, canvas.height/2);
-	var scorpionBot = new Scorpion(gameEngine, 1500, 420);
-	var scorpionBot2 = new Scorpion(gameEngine, 3000, 420);
-	var subzero = new Subzero(gameEngine, 1900, 420);
-	var ken = new Ken(gameEngine, 1500, 420);
 
-	ken.isBot = true;
+	var mkbg = new Background(gameEngine, AM.getAsset("./img/CourtyardBackgroundX3.png"));
+	var sfbg = new Background(gameEngine, AM.getAsset("./img/StreetFighterBG.png"));
+	var dbbg = new Background(gameEngine, AM.getAsset("./img/namekbgr.png"));
+	
+	
+	var scorpion = new Scorpion(gameEngine, 200, 420);
+	var subzero = new Subzero(gameEngine, 1500, 420);
+	var subzero2 = new Subzero(gameEngine, 4000, 420);
 	subzero.isBot = true;
-	scorpionBot.isBot = true;
-	scorpionBot.speed = 2;
+	subzero.speed = 3.3;
+	subzero.healthBar.x = 740;
+	subzero.healthBar.y = 20;
+	subzero.healthBar.hp = 40;
+	subzero2.isBot = true;
+	subzero2.speed = 3.3;
+	subzero2.healthBar.x = 740;
+	subzero2.healthBar.y = 50;
+	subzero2.healthBar.hp = 40;
+	
+	//var scorpionBot2 = new Scorpion(gameEngine, 3000, 420);
+	
+	var ken = new Ken(gameEngine, 1300, 420);
+	var ken2 = new Ken(gameEngine, 4000, 420);
+	var ryu = new Ryu(gameEngine, 200, 420);
+	ken.isBot = true;
+	ken.speed = 3.3;
+	ken.healthBar.x = 740;
+	ken.healthBar.y = 20;
+	ken.healthBar.hp = 40;
+	ken2.isBot = true;
+	ken2.speed = 3.3;
+	ken2.healthBar.x = 740;
+	ken2.healthBar.y = 50;
+	ken2.healthBar.hp = 40;
+
+
+
+
+
+
+
+	var goku = new Goku(gameEngine, 200, 420);
+	var frieza = new Frieza(gameEngine, 1300, 420);
+	var frieza2 = new Frieza(gameEngine, 4000, 420);
+	frieza.isBot = true;
+	frieza.speed = 3.3;
+	frieza.healthBar.x = 740;
+	frieza.healthBar.y = 20;
+	frieza.healthBar.hp = 40;
+	frieza2.isBot = true;
+	frieza2.speed = 3.3;
+	frieza2.healthBar.x = 740;
+	frieza2.healthBar.y = 50;
+	frieza2.healthBar.hp = 40;
+
+
+	var kenBot3 = new Frieza(gameEngine, 8300, 420);
+    kenBot3.isBot = true;
+    kenBot3.speed = 3;
+    kenBot3.healthBar.x = 740;
+    kenBot3.healthBar.y = 80;
+    kenBot3.healthBar.hp = 110;
+
+
+	var saitama = new Saitama(gameEngine, 200, 420);
+
+	/*ken.isBot = true;
+	subzero.isBot = true;
+	
 	scorpionBot2.isBot = true;
-	scorpionBot.healthBar.x = 740;
 	scorpionBot2.healthBar.x = 740;
 	scorpionBot2.healthBar.y = 50;
 	subzero.speed = 3;
@@ -279,15 +350,74 @@ AM.downloadAll(function () {
 	subzero.healthBar.x = 740;
 	subzero.healthBar.y = 20;
 
+	*/
+	
+
 
 	
 	// $('.enter_link').click(function() { 
     //     $(this).parent().fadeOut(500);
 //  });
-	gameEngine.addEntity(bg);
-	gameEngine.addEntity(scorpion);
-	gameEngine.addEntity(camera);
-	gameEngine.addEntity(scorpionBot);
+
+
+	//gameEngine.addEntity(bg);
+	//gameEngine.addEntity(scorpion);
+	//gameEngine.addEntity(camera);
+	//gameEngine.addEntity(scorpionBot);
+
+
+	if(localStorage.getItem("char") == "Goku") {
+		gameEngine.addEntity(dbbg);
+		gameEngine.addEntity(goku);
+		gameEngine.addEntity(camera);
+		goku.stage = 0;
+		gameEngine.addEntity(frieza);
+		gameEngine.addEntity(frieza2);
+
+		camera.follow(goku, canvas.width/2, canvas.height/2);
+		gameEngine.init(ctx);
+		gameEngine.start();
+	}
+	if(localStorage.getItem("char") == "Scorpion") {
+		gameEngine.addEntity(mkbg);
+		gameEngine.addEntity(scorpion);
+		gameEngine.addEntity(camera);
+		scorpion.stage = 0;
+		gameEngine.addEntity(subzero);
+		gameEngine.addEntity(subzero2);
+
+		camera.follow(scorpion, canvas.width/2, canvas.height/2);
+		gameEngine.init(ctx);
+		gameEngine.start();
+		
+	}
+	if(localStorage.getItem("char") == "Ryu") {
+		gameEngine.addEntity(sfbg);
+		gameEngine.addEntity(ryu);
+		gameEngine.addEntity(camera);
+		ryu.stage = 0;
+		gameEngine.addEntity(ken);
+		gameEngine.addEntity(ken2);
+
+		camera.follow(ryu, canvas.width/2, canvas.height/2);
+		gameEngine.init(ctx);
+		gameEngine.start();
+	}
+	if(localStorage.getItem("char") == "Saitama") {
+		gameEngine.addEntity(dbbg);
+		gameEngine.addEntity(saitama);
+		gameEngine.addEntity(camera);
+		saitama.stage = 0;
+		ken.healthBar.hp = 110;
+		subzero2.healthBar.hp = 110;
+		gameEngine.addEntity(ken);
+		gameEngine.addEntity(subzero2);
+		gameEngine.addEntity(kenBot3);
+
+		camera.follow(saitama, canvas.width/2, canvas.height/2);
+		gameEngine.init(ctx);
+		gameEngine.start();
+	}
 
 	//gameEngine.addEntity(scorpionBot2);
 	// gameEngine.addEntity(gokku);
@@ -295,7 +425,6 @@ AM.downloadAll(function () {
 	//gameEngine.addEntity(ryu);
 	//gameEngine.addEntity(ken);
 
-	gameEngine.init(ctx);
-	gameEngine.start();
+	
 
 })

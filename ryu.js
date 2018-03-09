@@ -30,10 +30,10 @@ function Ryu(game, x, y) {
 
     this.knockBackFrames = [new Frame(396, 1614, 58, 100), new Frame(464, 1614, 70, 100), new Frame(594, 1614, 84, 100), new Frame(680, 1614, 84, 100)];
 
-    this.idleRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 163, 40, 50, 100, 0.15, 4, true, false, false, null);
+    this.idleAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 163, 40, 50, 100, 0.15, 4, true, false, false, null);
     this.idleLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 1937, 40, 50, 100, 0.15, 4, true, true, false, null);
 
-    this.moveRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 48, 646, 49, 86, 0.15, 4, true, true, false, null);
+    this.moveAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 48, 646, 49, 86, 0.15, 4, true, true, false, null);
     this.moveLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 2056, 646, 49, 86, 0.15, 4, true, true, false, null);
 
     this.crouchRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 549, 642, 50, 100, 0.15, 1, true,  false, false, null);
@@ -78,7 +78,7 @@ function Ryu(game, x, y) {
     this.attackedRightAnimation = new Animation(AM.getAsset("./img/Ryu.png"), 34, 1620, 55, 85, 0.2, 2, false, false, false, null);
     this.attackedLeftAnimation = new Animation(AM.getAsset("./img/RyuFlipped.png"), 2156, 1620, 55, 85, 0.2, 2, false, true, false, null);
 
-    this.currentAnimation = this.idleRightAnimation;
+    this.currentAnimation = this.idleAnimation;
     //Ryu's movement speed.
     this.speed = 5;
     
@@ -108,6 +108,9 @@ function Ryu(game, x, y) {
     this.boxWidth = 58;
     this.boxHeight = 128;
 
+    this.actualWidth = 50;
+    this.actualHeight = 90;
+
     this.gettingAttacked = false;
     this.gettingAttackedCounter = 0;
 
@@ -125,8 +128,8 @@ function Ryu(game, x, y) {
     this.attackDamageMap.set(this.kicking, 0.4);
     this.attackDamageMap.set(this.kicking2, 0.2);
 
-    this.animationCollection = [this.idleRightAnimation, this.idleLeftAnimation,
-            this.moveRightAnimation, this.moveLeftAnimation, this.crouchRightAnimation,
+    this.animationCollection = [this.idleAnimation, this.idleLeftAnimation,
+            this.moveAnimation, this.moveLeftAnimation, this.crouchRightAnimation,
             this.crouchLeftAnimation, this.blockRightAnimation,
             this.blockLeftAnimation, this.blockCrouchRightAnimation,
             this.blockCrouchLeftAnimation, this.punchRightAnimation,
@@ -143,7 +146,7 @@ function Ryu(game, x, y) {
         this.animationCollection[i].actualWidth = 50;
         this.animationCollection[i].actualHeight = 90;
     }
-    this.healthBar = new HealthBar(100, this.game, 20, 100);
+    //this.healthBar = new HealthBar(100, this.game, 20, 100);
 
     this.xView = x;
     this.yView = y;
@@ -178,8 +181,10 @@ Ryu.prototype.checkGameStates = function() {
             this.blockRightAnimation.elapsedTime = 0;
         }
         if (this.game.jump) {
-            if (!this.gettingAttacked) {
+            if (!this.gettingAttacked && !this.knockingBack) {
                 this.jumping = true;
+            } else {
+                this.game.jump = null;
             }
             this.game.block = null;
             this.blocking = false;
@@ -587,7 +592,7 @@ Ryu.prototype.checkMyStates = function() {
         } else  if (this.movingRight) {
             //IF THIS IS NOT GETTING ATTACKED THE DO IT
             if (!this.gettingAttacked) {
-                this.currentAnimation = this.moveRightAnimation;
+                this.currentAnimation = this.moveAnimation;
 
                 if ((this.x < 3720)) {
                     this.x += this.speed;
@@ -628,7 +633,7 @@ Ryu.prototype.checkMyStates = function() {
             }
         } else  {
             if (this.facing === "R") {
-                this.currentAnimation = this.idleRightAnimation;
+                this.currentAnimation = this.idleAnimation;
             } else {
                 this.currentAnimation = this.idleLeftAnimation;
             }
@@ -641,10 +646,68 @@ Ryu.prototype.update = function() {
     // if (this.healthBar.hp <= 0) {
     //     this.removeFromWorld = true;
     // }
+    var enemies = 0;
+    for (var i = 0; i < this.game.entities.length; i++) {
+        if (this.game.entities[i].isBot) {
+            enemies++;
+        }
+    }
 
+    //if true then go to next stage!
+    if (enemies <= 0) {
+        
+        if (this.stage === 0 || this.stage === 1) {
+            //Go to Ryu
+            for (var i = 0; i < this.game.entities.length; i++) {
+                if (this.game.entities[i] instanceof Background) {
+                    this.game.entities[i].setNew(AM.getAsset("./img/namekbgr.png"));
+                } else if (this.game.entities[i] instanceof Ryu) {
+                    this.game.entities[i] = new Goku(this.game, 200, 420);
+                    console.log(this.game.entities[i].healthBar.y);
+                    this.game.entities[i].stage = this.stage + 1;
+                    for (var j = 0; j < this.game.entities.length; j++) {
+                        if (this.game.entities[j] instanceof Camera) {
+                            this.game.entities[j].follow(this.game.entities[i],
+                                document.getElementById("gameWorld").width/2, document.getElementById("gameWorld").height/2);
+                        }
+                    }
+                }
+            }
+            var kenBot = new Frieza(this.game, 1200, 420);
+            kenBot.isBot = true;
+            kenBot.speed = 2;
+            kenBot.healthBar.x = 740;
+            kenBot.healthBar.y = 20;
+            kenBot.healthBar.hp = 70;
+            var kenBot2 = new Frieza(this.game, 4500, 420);
+            kenBot2.isBot = true;
+            kenBot2.speed = 2;
+            kenBot2.healthBar.x = 740;
+            kenBot2.healthBar.y = 50;
+            kenBot2.healthBar.hp = 70;
+            var kenBot3 = new Frieza(this.game, 8300, 420);
+            kenBot3.isBot = true;
+            kenBot3.speed = 3;
+            kenBot3.healthBar.x = 740;
+            kenBot3.healthBar.y = 80;
+            kenBot3.healthBar.hp = 70;
+            this.game.addEntity(kenBot);
+            this.game.addEntity(kenBot2);
+            this.game.addEntity(kenBot3);
+        } else if (this.stage === 2) {
+            //Game over .
+            console.log("game over");
+        }
+        
+    }
      
-
-    if (!this.isBot) {
+    if (this.healthBar.hp <= 0) {
+        this.healthBar.hp = 0;
+        if (!this.isBot) {
+            this.game.addEntity(new GameOver(this.game, this.game.xView + 340, this.game.yView + 200));
+        }
+        this.removeFromWorld = true;
+    }else  if (!this.isBot) {
         
         this.checkGameStates();
 
@@ -749,12 +812,13 @@ Ryu.prototype.update = function() {
                     } else {
                         attack = false;
                     }
+                    range = ent.actualWidth * ent.scaleBy;
                     //console.log(Math.abs(this.x - ent.x));
                     if (this.x > ent.x && Math.abs(this.x - ent.x) < range) {
                         
                         count++;
         
-                        if(count % 30 == 0) {
+                        if(count % 50 == 0) {
                             rand = Math.floor(Math.random() * 3);
                         }
                         //console.log("Right");
@@ -766,7 +830,7 @@ Ryu.prototype.update = function() {
                         if(!this.isAttacking()){
                             
                             //console.log("Here's the random number "+ rand);
-                            //var rand = Math.floor(Math.random() * 3);
+                            
                             if(rand === 0){
                                 ent.currentAnimation = ent.kickRightAnimation;
                                 this.facing = "L";
@@ -875,7 +939,7 @@ Ryu.prototype.update = function() {
                                 ent.removeFromWorld = true;
                             }
                             if(this.healthBar.hp <= 0) {
-                                ent.currentAnimation = ent.idleRightAnimation;
+                                ent.currentAnimation = ent.idleAnimation;
                             }
                         } else {
                             
@@ -924,7 +988,7 @@ Ryu.prototype.update = function() {
                     }
                     else if(this.x > ent.x && !(Math.abs(this.x - ent.x) < range-10)) {
                         ent.facing = "R";
-                        ent.currentAnimation = ent.moveRightAnimation
+                        ent.currentAnimation = ent.moveAnimation;
                         ent.x += ent.speed;
                     }
                     if(this.game.kick && this.currentAnimation.isDone()) {
@@ -1031,12 +1095,7 @@ Ryu.prototype.attackHandler = function(other, mult) {
 
 //Draws current frame of current animation.
 Ryu.prototype.draw = function(ctx, xView, yView) {
-    if (!this.isBot) {
-        //this.healthBar.draw(ctx);
+    this.healthBar.draw(ctx);
         this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-    } else {
-        //this.healthBar.draw(ctx);
-        this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-    }
     Entity.prototype.draw.call(this);
 }

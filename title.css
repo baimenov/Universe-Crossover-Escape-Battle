@@ -1,0 +1,79 @@
+@import url(https://fonts.googleapis.com/css?family=VT323);
+
+body{
+  font-family: 'VT323';
+  text-align:center;
+  background:rgb(255, 255, 255) url(https://i.imgur.com/emBDw7S.gif);
+  background-repeat: no-repeat;
+  background-size: 1300px 800px;
+}
+footer{
+  clear:both;
+  color:#aaa;
+  padding:30px
+}
+audio{display:none}
+h1{
+  color:#fff;
+  font-size:46px;
+  text-shadow:2px 2px 0 #08c;
+  font-weight:normal
+}
+ul{
+  max-width:800px;
+  margin:0 auto;
+  padding:0;
+  list-style:none;
+}
+ul li{
+  display:block;
+  background:url("./img/gokuicon.png") top center no-repeat;
+  width:200px;
+  height:340px;
+  padding:0;
+  cursor:pointer;
+  float:left;
+  position:relative
+}
+ul li::before{
+ 
+  content:" ";
+  display:block;
+  width:92px;
+  height:92px;
+  position:absolute;
+  left:80px;
+  top:-50px
+}
+.t2{
+  background-image:url("./img/scorpionicon.png")
+}
+.t3{
+  background-image:url("./img/ryuicon.png")
+}
+.t4{
+  background-image:url("./img/SaitamaIcon.png")
+}
+
+.t1:hover, .t1.active{
+  background-image:url("./img/gokuSSIcon.png")
+
+}
+
+
+
+.t2:hover, .t2.active{
+  background-image:url("./img/scorpionidleicon.png")
+}
+
+.t3:hover, .t3.active{
+  background-image:url("./img/ryuidleicon.png")
+}
+
+.t4:hover, .t4.active{
+  background-image:url("./img/SaitamaIconq.png")
+}
+
+
+
+.blink{ opacity:0.1 }

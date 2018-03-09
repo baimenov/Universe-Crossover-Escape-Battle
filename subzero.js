@@ -42,6 +42,9 @@ function Subzero(game, x, y) {
 	this.boxWidth = 51;
 	this.boxHeight = 105;
 
+	this.actualWidth = 51;
+	this.actualHeight = 105;
+
 	this.gettingAttacked = false;
 	this.knockingBack = false;
 	this.gettingAttackedCounter = 0;
@@ -709,9 +712,7 @@ Subzero.prototype.update = function() {
 		if (this.dyingAnimation.isDone()) {
 			this.removeFromWorld = true;
 		}
-	}
-
-	if (!this.isBot) {
+	}else if (!this.isBot) {
 		
 		this.checkGameStates();
 
@@ -740,9 +741,9 @@ Subzero.prototype.update = function() {
 		count = 0;
 	}
 	for (var i = 0; i < this.game.entities.length; i++) {
+
 		var ent = this.game.entities[i];
 		if(!(this.isBot)){
-				//console.log("COUNT "+count)
 				if (ent.gettingAttacked) {
 					if (!ent.blocking) {
 						ent.gettingAttackedCounter++;
@@ -806,6 +807,7 @@ Subzero.prototype.update = function() {
 					} else {
 						attack = false;
 					}
+					range = ent.actualWidth * ent.scaleBy;
 					//console.log(Math.abs(this.x - ent.x));
 					if (this.x > ent.x && Math.abs(this.x - ent.x) < range) {
 						
@@ -823,7 +825,7 @@ Subzero.prototype.update = function() {
 						if(!this.isAttacking()){
 							
 							//console.log("Here's the random number "+ rand);
-							//var rand = Math.floor(Math.random() * 3);
+							
 							if(rand === 0){
 								ent.currentAnimation = ent.kickRightAnimation;
 								this.facing = "L";
@@ -884,7 +886,11 @@ Subzero.prototype.update = function() {
 
 						//Player on the left
 					} if (this.x < ent.x && (Math.abs(this.x - ent.x) < range+60)) {
-						
+						if(this.game.kick && this.currentAnimation.isDone()) {
+							attack = true;
+						} else {
+							attack = false;
+						}
 						if(count2 % 50 == 0) {
 							rand2 = Math.floor(Math.random() * 3);
 						}
@@ -1067,12 +1073,7 @@ Subzero.prototype.attackHandler = function(other, mult) {
 
 //Draws current frame of current animation.
 Subzero.prototype.draw = function(ctx, xView, yView) {
-	if (!this.isBot) {
-		this.healthBar.draw(ctx);
-		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.xView, this.yView, this.scaleBy);
-	} else {
-		this.healthBar.draw(ctx);
-		this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
-	}
+	this.healthBar.draw(ctx);
+        this.currentAnimation.drawFrame(this.game.clockTick, ctx, this.x - xView, this.y - yView, this.scaleBy);
 	Entity.prototype.draw.call(this);
 }

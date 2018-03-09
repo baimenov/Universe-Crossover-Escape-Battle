@@ -1,30 +1,24 @@
-﻿
-<!DOCTYPE html>
-<html>
+<h1>SELECT YOUR FIGHTER</h1>
+
 <head>
-    <meta charset="utf-8">
-    <title>Universe Crossover Escape Battle</title>
-    <script type="text/javascript" src="./gameengine.js"></script>
-    <script type="text/javascript" src="./animation.js"></script>
-    <script type="text/javascript" src="./assetmanager.js"></script>
-    <script type="text/javascript" src="./scorpion.js"></script>
-    <script type="text/javascript" src="./goku.js"></script>
-    <script type="text/javascript" src="./ryu.js"></script>
-    <script type="text/javascript" src="./main.js"></script>
-    <script type="text/javascript" src="./subzero.js"></script>
-    <script type="text/javascript" src="./ken.js"></script>
-    <script type="text/javascript" src="./gameover.js"></script>
-</head>
-<body>
-    <canvas id="gameWorld" tabindex="1" width="1280" height="720" style="border: 1px solid brown; background: lightskyblue; float: left"></canvas>
-    <div id="descriptionDiv" style="float:left">
-        <div style="display: block; margin: 5px">&#8592; Move left</div>
-        <div style="display: block; margin: 5px">&#8594; Move Right</div>
-        <div style="display: block; margin: 5px">&#8593; Jump</div>
-        <div style="display: block; margin: 5px">&#8595; Crouch</div>
-        <div style="display: block; margin: 5px">7 Punch</div>
-        <div style="display: block; margin: 5px">9 Kick</div>
-        <div style="display: block; margin: 5px">0 Block</div>
-    </div>
-</body>
-</html>
+   <script>
+    var chosen = '';
+    function setval(varval)
+        {
+          mysample= varval;
+          localStorage.setItem("char",varval);
+        }</script>
+
+    <link rel="stylesheet" type="text/css" href="title.css">
+  </head>
+  <ul>
+      <li class="t1" onclick="main:setval('Goku');location.href='./title.html';" onclick></li>
+      <li class="t2"onclick="main:setval('Scorpion');location.href='./title.html';"></li>
+      <li class="t3"onclick="main:setval('Ryu');location.href='./title.html';"></li>
+      <li class="t4"onclick="main:setval('Saitama');location.href='./title.html';"></li>
+    </ul>
+<footer>
+ Universe Crossover Escape Battle &copy; 2018<br>
+@UCEB
+</footer>
+<!--<audio  autobuffer="autobuffer" autoplay="autoplay" loop="true"> <source src="http://aidimda.com/js/select.ogg"  type="audio/ogg"> </audio>
